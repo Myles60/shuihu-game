@@ -1521,22 +1521,38 @@ function doPatrol(locId) {
 
   if (hasEvent && roll < 0.20) {
     triggerLocationEvent(locId, loc.event);
-  } else if (roll < 0.20 + 0.08 + heroFindBonus) {
+  } else if (roll < 0.28 + heroFindBonus) {
     recruitHero(locId);
-  } else if (roll < 0.20 + 0.08 + heroFindBonus + 0.20) {
+  } else if (roll < 0.46 + heroFindBonus) {
     const amount = 50 + Math.floor(Math.random() * 100);
     if (myLegions.length > 0) {
       const rl = myLegions[Math.floor(Math.random() * myLegions.length)];
       rl.troops = Math.min(rl.troops + amount, getHeroTroopCap(rl.hero));
     }
     addLog(`👥 巡视 ${loc.name}：发现流民，+${amount} 兵！`, 'good');
-  } else if (hasAdjEnemy && roll < 0.20 + 0.08 + heroFindBonus + 0.20 + 0.15) {
+  } else if (roll < 0.53 + heroFindBonus) {
+    const gift = 100 + Math.floor(Math.random() * 150);
+    gameState.locations[locId].grain = (gameState.locations[locId].grain || 0) + gift;
+    addLog(`🎁 巡视 ${loc.name}：当地富绅仰慕义军，献上 ${gift} 粮草！`, 'good');
+  } else if (roll < 0.60 + heroFindBonus) {
+    if (Math.random() < 0.5) {
+      const loss = 40 + Math.floor(Math.random() * 60);
+      if (myLegions.length > 0) {
+        myLegions[0].troops = Math.max(0, myLegions[0].troops - loss);
+      }
+      addLog(`🔫 巡视 ${loc.name}：遭遇流寇打劫！损失 ${loss} 兵力！`, 'bad');
+    } else {
+      const lossGrain = 50 + Math.floor(Math.random() * 120);
+      const oldGrain = gameState.locations[locId].grain || 0;
+      gameState.locations[locId].grain = Math.max(0, oldGrain - lossGrain);
+      addLog(`🔫 巡视 ${loc.name}：遭遇流寇打劫！被抢走 ${Math.min(lossGrain, oldGrain)} 粮草！`, 'bad');
+    }
+  } else if (hasAdjEnemy && roll < 0.75 + heroFindBonus) {
     revealIntel(locId);
-  } else if (roll < 0.95) {
-    if (hasEvent && !hasAdjEnemy && roll < 0.20 + (hasAdjEnemy ? 0 : 0)) triggerLocationEvent(locId, loc.event);
-    else addLog(`🔍 巡视 ${loc.name}：平安无事。`, 'info');
+  } else if (roll < 0.97) {
+    addLog(`🔍 巡视 ${loc.name}：平安无事。`, 'info');
   } else {
-    const loss = 30 + Math.floor(Math.random() * 50);
+    const loss = 20 + Math.floor(Math.random() * 40);
     if (myLegions.length > 0) {
       myLegions[0].troops = Math.max(0, myLegions[0].troops - loss);
     }
@@ -1728,67 +1744,119 @@ function triggerLocationEvent(locId, eventType) {
 
 // ===== 好汉驻守 → 已改为调动军团（showMoveLegion / doMoveLegion）=====
 
-// ===== AI 系统 =====
+// ===== AI 系统（智能版）=====
 function executeAITurn(factionId, animations) {
   const faction = FACTIONS.find(f => f.id === factionId);
   if (!faction) return;
   const fData = gameState.factions[factionId];
   const myLegions = fData.legions;
-
-  // 无武将则无法行动
   if (myLegions.length === 0) return;
 
-  const style = faction.aiStyle;
-  // AI 风格参数：{ attackChance, minTroopRatio, preferStrongHero, preferWeakEnemy, patrolChance }
+  // ===== 资源评估 =====
+  const myLocs = Object.keys(gameState.locations).filter(id =>
+    gameState.locations[id].owner === factionId
+  );
+  const totalTroops = myLegions.reduce((s, l) => s + l.troops, 0);
+  const totalGrain = myLocs.reduce((s, id) => s + (gameState.locations[id].grain || 0), 0);
+  const avgTroops = totalTroops / Math.max(myLegions.length, 1);
+
+  // 动态调整攻击倾向（资源自适应）
+  const baseStyle = faction.aiStyle;
+  let dynamicAggression;
+  if (myLegions.length <= 1 || totalTroops < 400) {
+    dynamicAggression = 'defensive'; // 穷途末路，苟住
+  } else if (totalTroops > 2000 && myLegions.length >= 4) {
+    dynamicAggression = 'aggressive'; // 兵力雄厚，进攻！
+  } else if (avgTroops < 300) {
+    dynamicAggression = 'cautious'; // 兵力不足，谨慎
+  } else {
+    dynamicAggression = baseStyle; // 正常发挥
+  }
+
   const styleParams = {
-    aggressive: { attackChance: 0.75, minTroopRatio: 0.3, preferStrongHero: true,  preferWeakEnemy: true,  patrolChance: 0.10 },
-    balanced:   { attackChance: 0.50, minTroopRatio: 0.4, preferStrongHero: true,  preferWeakEnemy: true,  patrolChance: 0.20 },
-    cautious:   { attackChance: 0.35, minTroopRatio: 0.5, preferStrongHero: false, preferWeakEnemy: true,  patrolChance: 0.30 },
-    defensive:  { attackChance: 0.25, minTroopRatio: 0.6, preferStrongHero: false, preferWeakEnemy: false, patrolChance: 0.35 },
+    aggressive: { attackChance: 0.80, minTroopRatio: 0.3, minAdvantage: 0.7,  patrolChance: 0.08, restFocus: false },
+    balanced:   { attackChance: 0.55, minTroopRatio: 0.35, minAdvantage: 0.9,  patrolChance: 0.18, restFocus: false },
+    cautious:   { attackChance: 0.35, minTroopRatio: 0.45, minAdvantage: 1.1,  patrolChance: 0.25, restFocus: true },
+    defensive:  { attackChance: 0.20, minTroopRatio: 0.55, minAdvantage: 1.3,  patrolChance: 0.30, restFocus: true },
   };
-  const sp = styleParams[style] || styleParams.balanced;
-  const actions = Math.min(myLegions.length, style === 'aggressive' ? 3 : 2);
+  const sp = styleParams[dynamicAggression] || styleParams.balanced;
+
+  // ===== 防守部署：确保重要据点有将驻守 =====
+  // 优先保护大城和州府
+  const importantLocs = myLocs.filter(id => {
+    const loc = LOCATIONS.find(l => l.id === id);
+    return loc && (loc.type === 'capital' || loc.type === 'city');
+  });
+  // 检查是否有重要据点无将
+  const undefendedImportant = importantLocs.filter(id =>
+    getLegionsAt(id, factionId).length === 0
+  );
+  // 如果有空闲武将，派去守重要据点
+  if (undefendedImportant.length > 0 && myLegions.length > 1) {
+    const movable = myLegions.filter(l =>
+      getLegionsAt(l.locationId, factionId).length > 1 // 所在据点有多个武将
+    );
+    if (movable.length > 0 && undefendedImportant.length > 0) {
+      const target = undefendedImportant[0];
+      const legion = movable.reduce((a, b) => a.hero.power < b.hero.power ? a : b, movable[0]);
+      if (getNeighbors(legion.locationId).some(n => n.locationId === target)) {
+        legion.locationId = target;
+        if (!gameState.locations[target].owner) gameState.locations[target].owner = factionId;
+        addLog(`🛡️ ${faction.name}调${legion.hero.name}驻防${LOCATIONS.find(l=>l.id===target).name}`, 'info');
+      }
+    }
+  }
+
+  // ===== 行动阶段 =====
+  const actions = Math.min(myLegions.length, dynamicAggression === 'aggressive' ? 3 : 2);
 
   for (let a = 0; a < actions; a++) {
     if (Math.random() < sp.attackChance) {
-      // 找可进攻的军团+目标
+      // ---- 智能进攻评估 ----
       const candidates = [];
       myLegions.forEach(legion => {
         const cap = getHeroTroopCap(legion.hero);
-        if (legion.troops < cap * sp.minTroopRatio) return; // 兵力不足
+        if (legion.troops < cap * sp.minTroopRatio) return;
         const neighbors = getNeighbors(legion.locationId);
         neighbors.forEach(n => {
           const ns = gameState.locations[n.locationId];
-          if (ns.owner !== factionId) {
-            const defTotal = getTotalTroops(n.locationId, ns.owner || '');
-            // 计算优劣势
-            const myPower = legion.troops * (1 + legion.hero.power / 200);
-            const defPower = defTotal * 1.0; // 守方无英雄修正（简化）
-            const advantage = myPower / Math.max(defPower, 1);
-            // 优先级：中立 > 弱敌 > 强敌，防守型不进攻优势方
-            let priority;
-            if (ns.owner === null) priority = 1;
-            else if (advantage > 1.5) priority = 2;
-            else if (advantage > 0.8) priority = 3;
-            else priority = 4;
-            // 谨慎型回避劣势战斗
-            if (style === 'cautious' && advantage < 0.9) return;
-            if (style === 'defensive' && advantage < 1.2) return;
-            candidates.push({ legion, toId: n.locationId, terrain: n.terrain, defTroops: defTotal, priority, advantage });
+          if (ns.owner === factionId) return;
+          const defTotal = getTotalTroops(n.locationId, ns.owner || '');
+          const defHero = ns.owner ? getBestHeroAt(n.locationId, ns.owner) : null;
+
+          // 综合战力评估
+          const terrainMod = { road: 1.0, mountain: 0.7, water: 0.6 };
+          let myEffPower = legion.troops * (terrainMod[n.terrain] || 1.0) * (1 + legion.hero.power / 200);
+          const defEffPower = defTotal * (1 + (defHero ? defHero.power : 0) / 200);
+
+          // 水军/山路好汉修正
+          if (n.terrain === 'water') {
+            const waterIds = ['zhangshun','ruanxiaoer','ruanxiaowu','ruanxiaoqi','lichun','zhangheng'];
+            if (waterIds.includes(legion.hero.id)) myEffPower /= 0.6;
           }
+          if (n.terrain === 'mountain' && legion.hero.id === 'wusong') myEffPower /= 0.7;
+
+          const advantage = myEffPower / Math.max(defEffPower, 1);
+          if (advantage < sp.minAdvantage) return; // 胜算不够，不打
+
+          // 评分：综合考虑
+          let score = advantage * 10; // 基础分
+          if (ns.owner === null) score += 5; // 中立优先
+          if (n.terrain === 'road') score += 2; // 大道好走
+          if (defHero && defHero.power > legion.hero.power + 10) score -= 3; // 敌将太强
+          const locObj = LOCATIONS.find(l => l.id === n.locationId);
+          if (locObj && locObj.type === 'capital') score += 3; // 首都价值高
+          if (locObj && locObj.baseGrain >= 60) score += 2; // 高产粮据点
+
+          candidates.push({ legion, toId: n.locationId, terrain: n.terrain, defTroops: defTotal, advantage, score });
         });
       });
 
-      // 排序：sp.preferWeakEnemy → 优先打弱敌；否则优先打中立
       if (candidates.length > 0) {
-        if (sp.preferWeakEnemy) {
-          candidates.sort((a, b) => a.priority - b.priority || a.defTroops - b.defTroops);
-        } else {
-          candidates.sort((a, b) => a.priority - b.priority || b.defTroops - a.defTroops);
-        }
-        // 进攻型有概率不选最优（20%随机选，增加不可预测性）
-        const t = (style === 'aggressive' && Math.random() < 0.2)
-          ? candidates[Math.floor(Math.random() * Math.min(candidates.length, 3))]
+        candidates.sort((a, b) => b.score - a.score);
+        // 选得分最高的，激进型偶尔冒险
+        const t = (dynamicAggression === 'aggressive' && Math.random() < 0.15)
+          ? candidates[Math.floor(Math.random() * Math.min(candidates.length, 2))]
           : candidates[0];
 
         const toLoc = LOCATIONS.find(l => l.id === t.toId);
@@ -1818,7 +1886,6 @@ function executeAITurn(factionId, animations) {
             fData.legions.push(createLegion(result.surrender.hero, Math.floor(t.defTroops * 0.3), t.toId));
           }
           addLog(`⚔️ ${faction.name}${t.legion.hero.name} 攻占 ${toLoc.name}！（损${result.attackerLoss}兵）`, 'bad');
-          // 记录行军动画
           if (animations) animations.push({ from: fromLoc, to: t.toId });
         } else {
           if (toOwner) {
@@ -1827,33 +1894,32 @@ function executeAITurn(factionId, animations) {
             defLegions.forEach(l => { if (rl > 0) { const d = Math.min(l.troops, rl); l.troops -= d; rl -= d; } });
           }
         }
-        continue; // 进攻消耗行动
+        continue;
       }
     }
 
-    // 巡视或休整
-    if (Math.random() < sp.patrolChance && fData.legions.length > 0) {
-      const patrolLegion = myLegions[Math.floor(Math.random() * myLegions.length)];
-      const patrolLocId = patrolLegion.locationId;
-      const patrolLocData = LOCATIONS.find(l => l.id === patrolLocId);
-      const locGrain = gameState.locations[patrolLocId].grain || 0;
-      if (locGrain >= 20 && Math.random() < 0.4) {
-        const pool = HERO_POOL.filter(h => !gameState.usedHeroIds.has(h.id));
+    // ---- 非进攻行动 ----
+    if (sp.restFocus && myLegions.length > 0) {
+      // 谨慎/防守型优先休整
+      const weak = myLegions.reduce((a, b) => a.troops < b.troops ? a : b, myLegions[0]);
+      const wl = LOCATIONS.find(l => l.id === weak.locationId);
+      if (wl) weak.troops = Math.min(weak.troops + Math.floor(wl.baseGrain * 2), getHeroTroopCap(weak.hero));
+    } else if (Math.random() < sp.patrolChance) {
+      // 巡逻招将
+      const legion = myLegions[Math.floor(Math.random() * myLegions.length)];
+      const locGrain = gameState.locations[legion.locationId].grain || 0;
+      if (locGrain >= 30 && Math.random() < 0.3 && myLegions.length < 5) {
+        const pool = HERO_POOL.filter(h => !gameState.usedHeroIds.has(h.id) && !h.hidden);
         if (pool.length > 0) {
           const hero = pool[Math.floor(Math.random() * pool.length)];
-          fData.legions.push(createLegion(hero, hero.type === 'commander' ? 300 : (hero.type === 'warrior' ? 250 : 200), patrolLocId));
+          fData.legions.push(createLegion(hero, hero.type === 'commander' ? 300 : (hero.type === 'warrior' ? 250 : 200), legion.locationId));
           gameState.usedHeroIds.add(hero.id);
-          gameState.locations[patrolLocId].grain -= 50;
-          addLog(`${faction.name} 巡视 ${patrolLocData.name}，招募了 ${hero.name}！`, 'info');
+          gameState.locations[legion.locationId].grain -= 40;
+          addLog(`${faction.name} 巡视招募了 ${hero.name}！`, 'info');
         }
-      } else if (fData.legions.length < 3) {
-        // 武将太少，补兵而不是巡逻
-        const restLegion = myLegions.reduce((b, l) => l.troops > b.troops ? l : b, myLegions[0]);
-        const rl = LOCATIONS.find(l => l.id === restLegion.locationId);
-        if (rl) restLegion.troops = Math.min(restLegion.troops + Math.floor(rl.baseGrain * 2), getHeroTroopCap(restLegion.hero));
       }
     } else {
-      // 休整最强军团
+      // 休整
       if (myLegions.length > 0) {
         const restLegion = myLegions.reduce((b, l) => l.troops > b.troops ? l : b, myLegions[0]);
         const rl = LOCATIONS.find(l => l.id === restLegion.locationId);
