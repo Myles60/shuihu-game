@@ -451,10 +451,11 @@ const HERO_POOL = [
   { id: 'yangjian',    name: '杨戬',   type: 'strategist', power: 38, loyalty: 80, skill: { name: '权谋',   desc: '敌方征兵消耗+30%', type: 'special' } },
   // === 方腊 ===
   { id: 'fangjie',     name: '方杰',   type: 'warrior',    power: 81, loyalty: 90, skill: { name: '方天戟', desc: '单挑中每3回合暴击一次(伤害×1.5)', type: 'attack' } },
-  // === 🥚 隐藏彩蛋：三位特别的武将 ===
+  // === 🥚 隐藏彩蛋：四位特别的武将 ===
   { id: 'jiashihan',   name: '贾诗涵', type: 'strategist', power: 52, loyalty: 99, skill: { name: '诗才',   desc: '巡视时有诗句相伴，额外+15%好汉发现率', type: 'special' }, hidden: true, hintLoc: 'xunyangjiang' },
   { id: 'zhanghaoyu',  name: '张浩宇', type: 'commander',  power: 72, loyalty: 99, skill: { name: '浩宇',   desc: '胸怀宇宙，统御四方——兵力上限+300', type: 'special' }, hidden: true, hintLoc: 'liangshanbo' },
   { id: 'zhangyongxu', name: '张永旭', type: 'warrior',    power: 79, loyalty: 99, skill: { name: '永旭',   desc: '旭日东升，士气永存——每回合回复5%兵力', type: 'special' }, hidden: true, hintLoc: 'jingyanggang' },
+  { id: 'masheng',     name: '麻昇',   type: 'warrior',    power: 91, loyalty: 99, skill: { name: '破阵',   desc: '单挑中无视敌方阵型克制效果', type: 'attack' }, hidden: true, hintLoc: 'dongjing' },
   // 军师
   { id: 'gongsunsheng',name: '公孙胜', type: 'strategist', power: 50, loyalty: 70, skill: { name: '道法',   desc: '进攻有 20% 概率让敌方好汉技能失效', type: 'attack' } },
   { id: 'wuyong',      name: '吴用',   type: 'strategist', power: 45, loyalty: 85, skill: { name: '智取',   desc: '进攻前先削弱敌方 10% 兵力', type: 'attack' } },
@@ -981,6 +982,8 @@ function calculateDuelRound(atkTroops, atkHero, atkFormation, defTroops, defHero
   if (defHero && defHero.id === 'zhangkai') atkDefMod += 0.15;
   // 邓元觉宝光：守城时免疫阵型克制
   if (defHero && defHero.id === 'dengyuanjue') { isCounter = false; isCountered = false; }
+  // 麻昇破阵：单挑中无视敌方阵型克制
+  if (atkHero && atkHero.id === 'masheng') { isCounter = false; isCountered = false; }
   // 被克制方阵型加成减半
   if (isCountered) atkDefMod = Math.max(0.3, atkDefMod - defFormation.defMod * 0.5);
   if (isCounter) defDefMod = Math.max(0.3, defDefMod - atkFormation.defMod * 0.5);
@@ -1584,6 +1587,7 @@ function recruitHero(locId) {
       jiashihan: `✨ 巡视 ${loc.name}，忽闻江畔有人吟诗：「他日若遂凌云志，敢笑黄巢不丈夫！」——原来是贾诗涵游历至此，被你的气概折服，率 ${recruitTroops} 人欣然加入！`,
       zhanghaoyu: `✨ 巡视 ${loc.name}，见一人立于山巅，指点江山：「此地聚义，可容天下豪杰！」——张浩宇胸怀大志，率 ${recruitTroops} 人慕名来投！`,
       zhangyongxu: `✨ 巡视 ${loc.name}，晨光熹微中见一将策马而来：「旭日正升，恰是建功之时！」——张永旭闻你威名，率 ${recruitTroops} 人赶来会合！`,
+      masheng: `✨ 巡视 ${loc.name}，见一人持枪立于城下，声如洪钟：「听闻此处英雄辈出，某麻昇特来一会！」——言罢翻身上马，率 ${recruitTroops} 人加入麾下！`,
     };
     addLog(eggMsgs[hero.id] || `✨ 偶遇神秘武将 ${hero.name}！（${typeNames[hero.type]}，战力 ${hero.power}）`, 'good');
     updateActionPoints();
