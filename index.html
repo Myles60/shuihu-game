@@ -443,6 +443,14 @@ const HERO_POOL = [
   // === 朝廷命官 ===
   { id: 'wangjin',     name: '王进',   type: 'warrior',    power: 82, loyalty: 60, skill: { name: '教习',   desc: '休整时兵力回复+60%，可训练守军', type: 'special' } },
   { id: 'zhangkai',    name: '张开',   type: 'warrior',    power: 74, loyalty: 70, skill: { name: '铁壁',   desc: '守城时防御+15%', type: 'defend' } },
+  // === 梁山地煞 ===
+  { id: 'sunxin',      name: '孙新',   type: 'warrior',    power: 67, loyalty: 50, skill: { name: '小尉迟', desc: '与孙立同驻时双方战力+5', type: 'special' } },
+  { id: 'gudasao',     name: '顾大嫂', type: 'warrior',    power: 66, loyalty: 55, skill: { name: '母大虫', desc: '守城时敌方每回合损1%兵力', type: 'defend' } },
+  { id: 'zourun',      name: '邹润',   type: 'warrior',    power: 64, loyalty: 45, skill: { name: '独角龙', desc: '山路进攻时眩晕概率+10%', type: 'attack' } },
+  // === 朝廷 ===
+  { id: 'yangjian',    name: '杨戬',   type: 'strategist', power: 38, loyalty: 80, skill: { name: '权谋',   desc: '敌方征兵消耗+30%', type: 'special' } },
+  // === 方腊 ===
+  { id: 'fangjie',     name: '方杰',   type: 'warrior',    power: 81, loyalty: 90, skill: { name: '方天戟', desc: '单挑中每3回合暴击一次(伤害×1.5)', type: 'attack' } },
   // === 🥚 隐藏彩蛋：三位特别的武将 ===
   { id: 'jiashihan',   name: '贾诗涵', type: 'strategist', power: 52, loyalty: 99, skill: { name: '诗才',   desc: '巡视时有诗句相伴，额外+15%好汉发现率', type: 'special' }, hidden: true, hintLoc: 'xunyangjiang' },
   { id: 'zhanghaoyu',  name: '张浩宇', type: 'commander',  power: 72, loyalty: 99, skill: { name: '浩宇',   desc: '胸怀宇宙，统御四方——兵力上限+300', type: 'special' }, hidden: true, hintLoc: 'liangshanbo' },
@@ -1498,32 +1506,37 @@ function doPatrol(locId) {
   gameState.locations[locId].grain -= cost;
   gameState.actionPoints -= 1;
 
-  const zhuwuBonus = myLegions.some(l => l.hero.id === 'zhuwu') ? 0.15 : 0;
-  const jiashihanBonus = myLegions.some(l => l.hero.id === 'jiashihan') ? 0.15 : 0;
+  const zhuwuBonus = myLegions.some(l => l.hero.id === 'zhuwu') ? 0.05 : 0;
+  const jiashihanBonus = myLegions.some(l => l.hero.id === 'jiashihan') ? 0.05 : 0;
   const heroFindBonus = zhuwuBonus + jiashihanBonus;
   const roll = Math.random();
   const hasEvent = loc.event !== null;
 
+  // 检查是否有相邻敌方据点（情报用）
+  const neighbors = getNeighbors(locId);
+  const hasAdjEnemy = neighbors.some(n => {
+    const nEff = getEffectiveOwner(n.locationId);
+    return nEff && nEff !== gameState.factionId;
+  });
+
   if (hasEvent && roll < 0.20) {
     triggerLocationEvent(locId, loc.event);
-  } else if (roll < 0.30 + heroFindBonus) {
+  } else if (roll < 0.20 + 0.08 + heroFindBonus) {
     recruitHero(locId);
-  } else if (roll < 0.50 + heroFindBonus) {
+  } else if (roll < 0.20 + 0.08 + heroFindBonus + 0.20) {
     const amount = 50 + Math.floor(Math.random() * 100);
-    // 流民加入随机军团
     if (myLegions.length > 0) {
       const rl = myLegions[Math.floor(Math.random() * myLegions.length)];
       rl.troops = Math.min(rl.troops + amount, getHeroTroopCap(rl.hero));
     }
     addLog(`👥 巡视 ${loc.name}：发现流民，+${amount} 兵！`, 'good');
-  } else if (roll < 0.65 + heroFindBonus) {
+  } else if (hasAdjEnemy && roll < 0.20 + 0.08 + heroFindBonus + 0.20 + 0.15) {
     revealIntel(locId);
   } else if (roll < 0.95) {
-    if (hasEvent) triggerLocationEvent(locId, loc.event);
+    if (hasEvent && !hasAdjEnemy && roll < 0.20 + (hasAdjEnemy ? 0 : 0)) triggerLocationEvent(locId, loc.event);
     else addLog(`🔍 巡视 ${loc.name}：平安无事。`, 'info');
   } else {
     const loss = 30 + Math.floor(Math.random() * 50);
-    // 损失到驻守军团
     if (myLegions.length > 0) {
       myLegions[0].troops = Math.max(0, myLegions[0].troops - loss);
     }
@@ -1598,23 +1611,30 @@ function revealIntel(locId) {
     const ns = gameState.locations[n.locationId];
     if (ns.owner && ns.owner !== gameState.factionId) {
       const totalTroops = getTotalTroops(n.locationId, ns.owner);
-      const bestHero = getBestHeroAt(n.locationId, ns.owner);
       const enemyLegions = gameState.factions[ns.owner].legions.filter(l => l.locationId === n.locationId);
       const hasXiezhen = enemyLegions.some(l => l.hero.id === 'xiezhen');
       const hasYangzhi = enemyLegions.some(l => l.hero.id === 'yangzhi');
+      const locName = LOCATIONS.find(l => l.id === n.locationId).name;
+
       if (hasXiezhen) {
-        revealed.push(LOCATIONS.find(l => l.id === n.locationId).name + '(兵力不详)');
+        revealed.push(`${locName}(兵力被封锁)`);
       } else if (hasYangzhi) {
-        revealed.push(LOCATIONS.find(l => l.id === n.locationId).name + '(被杨志封锁情报)');
+        revealed.push(`${locName}(情报被封锁)`);
       } else {
-        revealed.push(LOCATIONS.find(l => l.id === n.locationId).name + '(' + totalTroops + '人' + (bestHero ? ' ⭐' + bestHero.name : '') + ')');
+        let detail = `${locName}：${totalTroops}兵`;
+        if (enemyLegions.length > 0) {
+          detail += ` | ${enemyLegions.map(l => l.hero.name + '(' + l.troops + '兵)').join('、')}`;
+        } else {
+          detail += ' | 无将驻守';
+        }
+        revealed.push(detail);
       }
+      // 侦察标记：3回合有效
+      gameState.scoutedLocations[n.locationId] = gameState.turn;
     }
   });
   if (revealed.length > 0) {
-    addLog(`🕵️ 巡视情报：${revealed.join('、')}`, 'info');
-  } else {
-    addLog('🕵️ 巡视情报：相邻区域无敌方据点。', 'info');
+    addLog(`🕵️ 巡视情报（相邻敌方）：${revealed.join('；')}`, 'info');
   }
 }
 
