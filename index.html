@@ -2323,7 +2323,7 @@ function setupMapClick() {
         <div class="tt-name">${hovered.name}</div>
         <div class="tt-row"><span class="tt-label">类型</span><span class="tt-value">${typeNames[hovered.type]}</span></div>
         <div class="tt-row"><span class="tt-label">归属</span><span class="tt-value" style="color:${ownerFaction ? ownerFaction.color : '#888'}">${ownerFaction ? ownerFaction.name : '中立'}</span></div>
-        <div class="tt-row"><span class="tt-label">兵力</span><span class="tt-value">${effOwner ? totalTroops + '人' : '无人驻守'}</span></div>
+        <div class="tt-row"><span class="tt-label">兵力</span><span class="tt-value">${effOwner ? (effOwner === gameState.factionId || isScouted(hovered.id) ? totalTroops + '人' : '? 不明') : '无人驻守'}</span></div>
         ${hovered.event ? '<div class="tt-row"><span class="tt-label"></span><span class="tt-value" style="color:#ff9800;">⚡可触发事件</span></div>' : ''}
       `;
       tooltip.style.display = 'block';
@@ -2449,14 +2449,22 @@ function renderMap() {
     ctx.textAlign = 'center';
     ctx.fillText(loc.name, sx, sy + 44 * BW);
 
-    // 守将
+    // 守将（战争迷雾：敌方未侦察则不显示）
     if (effOwner) {
-      const legs = gameState.factions[effOwner].legions.filter(l => l.locationId === loc.id);
-      if (legs.length > 0) {
-        const best = legs.reduce((b, l) => (l.hero.power > b.hero.power ? l : b), legs[0]).hero;
-        ctx.fillStyle = '#c0392b';
+      const isPlayerOwned = effOwner === gameState.factionId;
+      const showGarrison = isPlayerOwned || isScouted(loc.id);
+      if (showGarrison) {
+        const legs = gameState.factions[effOwner].legions.filter(l => l.locationId === loc.id);
+        if (legs.length > 0) {
+          const best = legs.reduce((b, l) => (l.hero.power > b.hero.power ? l : b), legs[0]).hero;
+          ctx.fillStyle = '#c0392b';
+          ctx.font = `bold ${12 * BW}px "Microsoft YaHei"`;
+          ctx.fillText('●' + best.name + (legs.length > 1 ? '+' + (legs.length - 1) : ''), sx, sy + 58 * BW);
+        }
+      } else {
+        ctx.fillStyle = '#999';
         ctx.font = `bold ${12 * BW}px "Microsoft YaHei"`;
-        ctx.fillText('●' + best.name + (legs.length > 1 ? '+' + (legs.length - 1) : ''), sx, sy + 58 * BW);
+        ctx.fillText('? 兵力不明', sx, sy + 58 * BW);
       }
     }
   });
@@ -2567,7 +2575,7 @@ function updateSidePanel() {
     <div class="info-row"><span class="label">归属</span><span class="value" style="color:${ownerFaction ? ownerFaction.color : '#888'}">${ownerFaction ? ownerFaction.name : '中立'}</span></div>
     <div class="info-row"><span class="label">兵力</span><span class="value" style="font-size:12px;">${troopInfo}</span></div>
     ${scoutNote}
-    <div class="info-row"><span class="label">存粮</span><span class="value">🌾 ${state.grain || 0} <span style="color:#888;font-size:11px;">(+${loc.type === 'capital' ? 80 : loc.type === 'city' ? 50 : loc.type === 'fortress' ? 35 : 25}/回合${effOwner ? '' : ' 需驻军'})</span></span></div>
+    ${showDetails ? `<div class="info-row"><span class="label">存粮</span><span class="value">🌾 ${state.grain || 0} <span style="color:#888;font-size:11px;">(+${loc.type === 'capital' ? 80 : loc.type === 'city' ? 50 : loc.type === 'fortress' ? 35 : 25}/回合${effOwner ? '' : ' 需驻军'})</span></span></div>` : ''}
     <div class="info-row"><span class="label">相邻</span><span class="value" style="font-size:11px;">${terrainInfo}</span></div>
     ${loc.event ? '<div class="info-row"><span class="label">事件</span><span class="value" style="color:#ffa500;">⚠ 可触发原著事件</span></div>' : ''}
   `;
