@@ -131,6 +131,7 @@ body {
 }
 .battle-card:hover:not(.dead):not(.retreated) { border-color: #ffd700; transform: scale(1.02); }
 .battle-card.selected { border-color: #00ff88 !important; box-shadow: 0 0 12px rgba(0,255,136,0.3); }
+.battle-card.selected.locked { border-color: #ffd700 !important; box-shadow: 0 0 12px rgba(255,215,0,0.3); cursor: default; }
 .battle-card.dead { opacity: 0.3; cursor: not-allowed; text-decoration: line-through; }
 .battle-card.retreated { opacity: 0.4; cursor: not-allowed; border-style: dashed; }
 .battle-card .card-name { font-size: 15px; color: #ffd700; }
@@ -2749,12 +2750,13 @@ function startBattle(attackerId, defenderId, fromLocId, toLocId, terrain, isPlay
     attLegions, defLegions,
     selectedAttIdx: null, selectedDefIdx: null,
     activeSide: 'attacker',
-    phase: 'pick',
+    phase: 'pick_active',
     round: 1,
     log: [],
     retreated: { attacker: [], defender: [] },
     retreatDest: {}, // { 'attacker_0': locId, 'defender_1': locId } 撤退目的地
     lastResult: null,
+    _activePickedIdx: null, // 主动方选中的武将索引
     attHeroIds: attLegions.map(l => l.hero.id),  // 参战将领ID（用于精确写回）
     defHeroIds: defLegions.map(l => l.hero.id),
   };
@@ -2762,7 +2764,7 @@ function startBattle(attackerId, defenderId, fromLocId, toLocId, terrain, isPlay
   document.getElementById('battle-overlay').classList.add('active');
   renderBattle();
   if (!isPlayerActive()) {
-    setTimeout(() => aiPickBoth(), 800);
+    setTimeout(() => aiPickActive(), 800);
   }
 }
 
@@ -3001,20 +3003,34 @@ function renderBattle() {
   document.getElementById('battle-defender-title').innerHTML =
     `🛡️ ${battle.defFaction ? battle.defFaction.name : '中立'} <span style="font-size:12px;color:#aaa;">(${battle.toLoc.name})</span>${battle.activeSide === 'defender' ? ' <span style="color:#ffd700;font-size:11px;">⚡主动</span>' : ''}`;
 
+  // 确定谁能在 pick_active / pick_passive 阶段选将
+  const playerSide = battle.isPlayerAttacker ? 'attacker' : 'defender';
+  const canClickAttacker = (battle.phase === 'pick_active' && isPlayerActive() && playerSide === 'attacker')
+    || (battle.phase === 'pick_passive' && !isPlayerActive() && playerSide === 'attacker')
+    || (battle.phase === 'pick'); // 旧版兼容
+  const canClickDefender = (battle.phase === 'pick_active' && isPlayerActive() && playerSide === 'defender')
+    || (battle.phase === 'pick_passive' && !isPlayerActive() && playerSide === 'defender')
+    || (battle.phase === 'pick'); // 旧版兼容
+
   // 渲染进攻方武将列表
   document.getElementById('battle-attacker-cards').innerHTML = battle.attLegions.map((l, i) => {
     let cls = 'battle-card';
     if (l.troops <= 0) cls += ' dead';
     if (battle.retreated.attacker.includes(i)) cls += ' retreated';
     if (battle.selectedAttIdx === i) cls += ' selected';
+    // pick_active: 高亮主动方已选的武将
+    if (battle.phase === 'pick_active' && battle.activeSide === 'attacker' && battle._activePickedIdx === i) cls += ' selected';
+    if (battle.phase === 'pick_passive' && battle.activeSide === 'attacker' && battle._activePickedIdx === i) cls += ' selected locked';
     const pct = Math.round(l.troops / Math.max(l.origTroops, 1) * 100);
+    const onClick = canClickAttacker ? `onclick="onBattleCardClick('attacker', ${i})"` : '';
     return `
-    <div class="${cls}" onclick="onBattleCardClick('attacker', ${i})" id="att-card-${i}">
+    <div class="${cls}" ${onClick} id="att-card-${i}">
       <div class="card-name">⭐ ${l.hero.name} <span style="color:#888;font-size:11px;">战力${l.hero.power}</span></div>
       <div class="card-info" title="${l.hero.skill.desc}">${l.hero.skill.desc}</div>
       <div class="card-troops">${l.troops} 人 <span class="bar" style="width:${pct}%;background:${pct>50?'#4caf50':pct>25?'#ff9800':'#f44336'}"></span></div>
       ${l.troops <= 0 ? '<div style="color:#f44336;font-size:11px;">💀 已阵亡</div>' : ''}
       ${battle.retreated.attacker.includes(i) ? '<div style="color:#ffa500;font-size:11px;">🏃 已撤退</div>' : ''}
+      ${battle.phase === 'pick_passive' && battle.activeSide === 'attacker' && battle._activePickedIdx === i ? '<div style="color:#ffd700;font-size:11px;">🔒 已出战</div>' : ''}
     </div>`;
   }).join('');
 
@@ -3024,20 +3040,34 @@ function renderBattle() {
     if (l.troops <= 0) cls += ' dead';
     if (battle.retreated.defender.includes(i)) cls += ' retreated';
     if (battle.selectedDefIdx === i) cls += ' selected';
+    // pick_active: 高亮主动方已选的武将
+    if (battle.phase === 'pick_active' && battle.activeSide === 'defender' && battle._activePickedIdx === i) cls += ' selected';
+    if (battle.phase === 'pick_passive' && battle.activeSide === 'defender' && battle._activePickedIdx === i) cls += ' selected locked';
     const pct = Math.round(l.troops / Math.max(l.origTroops, 1) * 100);
+    const onClick = canClickDefender ? `onclick="onBattleCardClick('defender', ${i})"` : '';
     return `
-    <div class="${cls}" onclick="onBattleCardClick('defender', ${i})" id="def-card-${i}">
+    <div class="${cls}" ${onClick} id="def-card-${i}">
       <div class="card-name">⭐ ${l.hero.name} <span style="color:#888;font-size:11px;">战力${l.hero.power}</span></div>
       <div class="card-info" title="${l.hero.skill.desc}">${l.hero.skill.desc}</div>
       <div class="card-troops">${l.troops} 人 <span class="bar" style="width:${pct}%;background:${pct>50?'#4caf50':pct>25?'#ff9800':'#f44336'}"></span></div>
       ${l.troops <= 0 ? '<div style="color:#f44336;font-size:11px;">💀 已阵亡</div>' : ''}
       ${battle.retreated.defender.includes(i) ? '<div style="color:#ffa500;font-size:11px;">🏃 已撤退</div>' : ''}
+      ${battle.phase === 'pick_passive' && battle.activeSide === 'defender' && battle._activePickedIdx === i ? '<div style="color:#ffd700;font-size:11px;">🔒 已出战</div>' : ''}
     </div>`;
   }).join('');
 
   // 阶段提示
+  const passiveName = battle.activeSide === 'attacker'
+    ? (battle.defFaction ? battle.defFaction.name : '中立')
+    : battle.attFaction.name;
   const hints = {
     pick: `👉 ${activeName} 回合：挑选【我方武将 → 对方武将】对战`,
+    pick_active: isPlayerActive()
+      ? `👉 你（${activeName}）选择出战武将`
+      : `👉 ${activeName} 选择出战武将...`,
+    pick_passive: !isPlayerActive()
+      ? `👉 你（${passiveName}）选择迎战武将`
+      : `👉 ${passiveName} 选择迎战武将...`,
     resolving: '⚡ 战斗中...',
     combat_result: battle.lastResult ?
       (battle.lastResult.attackerWon ? '🏆 进攻方本回合胜出！' : '💔 防守方本回合胜出！') : '',
@@ -3049,14 +3079,24 @@ function renderBattle() {
   const btnPanel = document.getElementById('battle-actions');
   let btnHtml = '';
 
-  if (battle.phase === 'pick') {
+  if (battle.phase === 'pick_active') {
     if (isPlayerActive()) {
-      const mySel = getMySelection();
-      const enemySel = getEnemySelection();
-      btnHtml += `<button class="confirm" id="btn-confirm-pick" onclick="confirmBattlePick()" ${mySel === null || enemySel === null ? 'disabled' : ''}>✅ 确认出战</button>`;
-      btnHtml += `<button class="danger" id="btn-retreat-selected" onclick="retreatSelectedLegion()" ${mySel === null ? 'disabled' : ''}>🏃 撤退选中武将（战前）</button>`;
+      const activePick = battle._activePickedIdx;
+      btnHtml += `<button class="confirm" id="btn-confirm-active" onclick="confirmActivePick()" ${activePick === null ? 'disabled' : ''}>✅ 出战</button>`;
+      if (activePick !== null) {
+        btnHtml += `<button class="danger" id="btn-retreat-active" onclick="retreatActiveLegion()">🏃 撤退选中武将（战前）</button>`;
+      }
     } else {
-      btnHtml += '<span style="color:#aaa;">AI 选择中...</span>';
+      btnHtml += '<span style="color:#aaa;">AI 选择出战武将...</span>';
+    }
+  } else if (battle.phase === 'pick_passive') {
+    if (!isPlayerActive()) {
+      // 玩家是被动方，选择迎战武将
+      const playerSide = battle.isPlayerAttacker ? 'attacker' : 'defender';
+      const passivePick = playerSide === 'attacker' ? battle.selectedAttIdx : battle.selectedDefIdx;
+      btnHtml += `<button class="confirm" id="btn-confirm-passive" onclick="confirmPassivePick()" ${passivePick === null ? 'disabled' : ''}>✅ 迎战</button>`;
+    } else {
+      btnHtml += '<span style="color:#aaa;">AI 选择迎战武将...</span>';
     }
   } else if (battle.phase === 'combat_result') {
     btnHtml += '<span style="color:#ffa500;">准备下一轮对决...</span>';
@@ -3074,30 +3114,70 @@ function renderBattle() {
 
 // 统一的卡片点击处理
 function onBattleCardClick(side, idx) {
-  if (!battle || battle.phase !== 'pick' || !isPlayerActive()) return;
-
+  if (!battle) return;
   const isAttacker = (side === 'attacker');
-  const isActiveAttacker = (battle.activeSide === 'attacker');
+  const playerSide = battle.isPlayerAttacker ? 'attacker' : 'defender';
 
-  // 判断点击的是"我方"还是"对方"
-  const clickingMySide = (isAttacker === isActiveAttacker);
-
-  if (clickingMySide) {
-    // 选择我方武将
+  if (battle.phase === 'pick_active' && isPlayerActive()) {
+    // 主动方选将阶段：玩家是主动方，只能选己方武将
+    if (side !== playerSide) return;
     const legions = getActiveLegions();
     const retreated = getActiveRetreated();
     const l = legions[idx];
     if (!l || l.troops <= 0 || retreated.includes(idx)) return;
-    setMySelection(idx);
-  } else {
-    // 选择对方武将
+    battle._activePickedIdx = idx;
+    renderBattle();
+  } else if (battle.phase === 'pick_passive' && !isPlayerActive()) {
+    // 被动方迎战阶段：玩家是被动方，只能选己方武将
+    if (side !== playerSide) return;
     const legions = getPassiveLegions();
     const retreated = getPassiveRetreated();
     const l = legions[idx];
     if (!l || l.troops <= 0 || retreated.includes(idx)) return;
-    setEnemySelection(idx);
+    // 存储选择到对应字段
+    if (playerSide === 'attacker') {
+      battle.selectedAttIdx = idx;
+      battle.selectedDefIdx = battle._activePickedIdx;
+    } else {
+      battle.selectedDefIdx = idx;
+      battle.selectedAttIdx = battle._activePickedIdx;
+    }
+    renderBattle();
   }
+}
+
+function confirmActivePick() {
+  if (!battle || battle.phase !== 'pick_active' || !isPlayerActive()) return;
+  if (battle._activePickedIdx === null) return;
+
+  // 玩家（主动方）已选好武将，切换到被动方迎战
+  battle.phase = 'pick_passive';
   renderBattle();
+  // 如果被动方是 AI，AI 自动迎战
+  if (isPlayerActive()) {
+    // 被动方是 AI（原来 isPlayerActive 对 pick_passive 判断是 false）
+    setTimeout(() => aiPickPassive(), 600);
+  }
+}
+
+function confirmPassivePick() {
+  if (!battle || battle.phase !== 'pick_passive' || isPlayerActive()) return;
+  if (battle.selectedAttIdx === null || battle.selectedDefIdx === null) return;
+
+  // 被动方（玩家）已选好迎战武将，进入阵型阶段
+  battle._lastAttIdx = battle.selectedAttIdx;
+  battle._lastDefIdx = battle.selectedDefIdx;
+  battle.selectedAttIdx = null;
+  battle.selectedDefIdx = null;
+  battle._activePickedIdx = null;
+  battle.phase = 'formation';
+  battle.playerFormation = null;
+  battle.aiFormation = null;
+  renderBattle();
+
+  // AI 立即选阵型
+  const aiHero = (battle.activeSide === 'attacker' ? battle.attLegions[battle._lastAttIdx] : battle.defLegions[battle._lastDefIdx]).hero;
+  battle.aiFormation = aiPickFormation(aiHero);
 }
 
 function confirmBattlePick() {
@@ -3505,11 +3585,12 @@ function continueAfterResult() {
   battle.activeSide = (battle.activeSide === 'attacker') ? 'defender' : 'attacker';
   battle.round++;
   battle.lastResult = null;
-  battle.phase = 'pick';
+  battle._activePickedIdx = null;
+  battle.phase = 'pick_active';
   renderBattle();
 
   if (!isPlayerActive()) {
-    setTimeout(() => aiPickBoth(), 600);
+    setTimeout(() => aiPickActive(), 600);
   }
 }
 
@@ -3565,7 +3646,8 @@ function retreatAfterCombat() {
 
 // 战前撤退（主动方在 pick 阶段撤退自己的武将）
 function retreatInPickPhase() {
-  if (!battle || battle.phase !== 'pick' || !isPlayerActive()) return;
+  const isPickPhase = battle.phase === 'pick' || battle.phase === 'pick_active' || battle.phase === 'pick_passive';
+  if (!battle || !isPickPhase || !isPlayerActive()) return;
   const mySel = getMySelection();
   if (mySel === null) return;
 
@@ -3603,10 +3685,52 @@ function retreatInPickPhase() {
   renderBattle();
 }
 
+// pick_active 阶段撤退已选武将
+function retreatActiveLegion() {
+  if (!battle || battle.phase !== 'pick_active' || !isPlayerActive()) return;
+  if (battle._activePickedIdx === null) return;
+
+  const legions = getActiveLegions();
+  const l = legions[battle._activePickedIdx];
+  if (!l || l.troops <= 0) return;
+
+  const fromLocId = battle.activeSide === 'attacker' ? battle.fromLocId : battle.toLocId;
+  const factionId = battle.activeSide === 'attacker' ? battle.attackerId : battle.defenderId;
+  const destLocId = selectRetreatDestination(fromLocId, factionId, l.hero.name, true);
+
+  if (destLocId === null) {
+    l.troops = 0;
+    getActiveRetreated().push(battle._activePickedIdx);
+    battle.retreatDest[`${battle.activeSide}_${battle._activePickedIdx}`] = null;
+    battle.log.push({ msg: `💀 ${l.hero.name} 无处可退，力战而亡！`, type: 'lose' });
+  } else {
+    const lossPct = Math.random() * 0.30;
+    const loss = Math.max(1, Math.floor(l.troops * lossPct));
+    l.troops -= loss;
+    getActiveRetreated().push(battle._activePickedIdx);
+    battle.retreatDest[`${battle.activeSide}_${battle._activePickedIdx}`] = destLocId;
+    const destName = LOCATIONS.find(loc => loc.id === destLocId).name;
+    battle.log.push({ msg: `🏃 ${l.hero.name} 战前撤退至 ${destName}！损失 ${loss} 人`, type: 'system' });
+  }
+
+  battle._activePickedIdx = null;
+
+  // 检查胜负
+  const attAlive = battle.attLegions.some((l, i) => l.troops > 0 && !battle.retreated.attacker.includes(i));
+  const defAlive = battle.defLegions.some((l, i) => l.troops > 0 && !battle.retreated.defender.includes(i));
+  if (!attAlive) { endBattle('defender'); return; }
+  if (!defAlive) { endBattle('attacker'); return; }
+
+  if (!isPlayerActive()) {
+    setTimeout(() => aiPickActive(), 600);
+  }
+  renderBattle();
+}
+
 // 统一的撤退按钮处理（仅用于 pick 阶段战前撤退，duel 阶段用 retreatFromDuel）
 function retreatSelectedLegion() {
   if (!battle) return;
-  if (battle.phase === 'pick') {
+  if (battle.phase === 'pick' || battle.phase === 'pick_active' || battle.phase === 'pick_passive') {
     retreatInPickPhase();
   }
   // combat_result 和 duel 阶段的撤退由各自的按钮处理
@@ -3630,120 +3754,170 @@ function aiEvaluateMatch(myIdx, enemyIdx, myLegions, enemyLegions) {
   };
 }
 
-// AI 主动方选将（田忌赛马策略）
-function aiPickBoth() {
-  if (!battle || battle.phase !== 'pick' || isPlayerActive()) return;
+// AI 主动方选将：选择己方出战的武将
+function aiPickActive() {
+  if (!battle || battle.phase !== 'pick_active' || isPlayerActive()) return;
 
   const myLegions = getActiveLegions();
-  const enemyLegions = getPassiveLegions();
   const myRetreated = getActiveRetreated();
-  const enemyRetreated = getPassiveRetreated();
 
-  // 收集可选武将
   const myAlive = myLegions.map((l, i) => ({ l, i })).filter(x => x.l.troops > 0 && !myRetreated.includes(x.i));
-  const enemyAlive = enemyLegions.map((l, i) => ({ l, i })).filter(x => x.l.troops > 0 && !enemyRetreated.includes(x.i));
 
   if (myAlive.length === 0) {
     endBattle(battle.activeSide === 'attacker' ? 'defender' : 'attacker');
     return;
   }
-  if (enemyAlive.length === 0) {
+
+  // 取最强的武将出战
+  const best = myAlive.reduce((a, b) => a.l.hero.power > b.l.hero.power ? a : b, myAlive[0]);
+  battle._activePickedIdx = best.i;
+
+  // 切换到被动方迎战
+  battle.phase = 'pick_passive';
+  renderBattle();
+
+  // 如果被动方也是 AI，AI 自动迎战
+  if (isPlayerActive()) {
+    // 被动方是 AI
+    setTimeout(() => aiPickPassive(), 600);
+  }
+  // 否则等待玩家选择迎战武将
+}
+
+// AI 被动方迎战：选择己方迎战武将
+function aiPickPassive() {
+  if (!battle || battle.phase !== 'pick_passive' || !isPlayerActive()) return;
+
+  const enemyLegions = getPassiveLegions(); // 被动方是 AI，所以 enemy 是主动方
+  const myLegions = getActiveLegions(); // wait no...
+  // Recalculate: when AI is passive, AI's side is passive side
+  // getPassiveLegions = the side that is NOT active = AI's side
+  // Hmm wait, let me reconsider
+
+  // Actually: isPlayerActive() checks (activeSide === attacker) === isPlayerAttacker
+  // If player is NOT active, AI is active. If player IS active, AI is passive.
+  // In aiPickPassive, AI is passive. So isPlayerActive() should be true (player is the active side).
+  // Wait, let me re-check.
+  //
+  // isPlayerActive() = (battle.activeSide === 'attacker') === battle.isPlayerAttacker
+  //
+  // Case: Player defending, AI attacking. isPlayerAttacker = false.
+  // At start: activeSide = attacker. isPlayerActive() = (true === false) = false. AI is active.
+  // After aiPickActive: activeSide still attacker. phase = pick_passive. isPlayerActive() = false. Player is passive.
+  // After continueAfterResult: activeSide swaps to defender. phase = pick_active. isPlayerActive() = (false === false) = true. Player is active!
+  //
+  // So in aiPickPassive:
+  // - Called when phase is pick_passive AND the passive side is AI
+  // - Passive side = NOT active side
+  // - AI's legions are the passive legions: getPassiveLegions()
+  // - Player's legions (already picked in active) are: getActiveLegions()
+  // - isPlayerActive() would be true here (player is the active side who just picked)
+
+  // Wait, that's wrong. Let me re-derive:
+  // aiPickPassive is called when passive side is AI.
+  // The passive side's legions are getPassiveLegions()
+  // So AI's legions = getPassiveLegions()
+  // And getActiveLegions() = the active side (player or another AI)
+
+  // But in my code, I check `if (isPlayerActive())` to determine if passive is AI.
+  // If isPlayerActive() is true, player is active → passive is AI ✓
+  // If isPlayerActive() is false, player is passive → passive is NOT AI (it's the player)
+
+  // So: AI's legions = getPassiveLegions() (passive = opposite of active)
+  const aiLegions = getPassiveLegions();
+  const aiRetreated = getPassiveRetreated();
+  const playerLegions = getActiveLegions();
+  const playerRetreated = getActiveRetreated();
+
+  const aiAlive = aiLegions.map((l, i) => ({ l, i })).filter(x => x.l.troops > 0 && !aiRetreated.includes(x.i));
+  const playerAlive = playerLegions.map((l, i) => ({ l, i })).filter(x => x.l.troops > 0 && !playerRetreated.includes(x.i));
+
+  if (aiAlive.length === 0) {
     endBattle(battle.activeSide === 'attacker' ? 'attacker' : 'defender');
     return;
   }
-
-  // 构建所有可能的对战组合
-  const matches = [];
-  myAlive.forEach(my => {
-    enemyAlive.forEach(enemy => {
-      matches.push(aiEvaluateMatch(my.i, enemy.i, myLegions, enemyLegions));
-    });
-  });
-
-  if (matches.length === 0) {
+  if (playerAlive.length === 0) {
     endBattle(battle.activeSide === 'attacker' ? 'defender' : 'attacker');
     return;
   }
 
-  // 策略排序
-  matches.sort((a, b) => b.score - a.score);
+  // AI 被动方：针对玩家已选武将，选择最优迎战
+  const playerPickedIdx = battle._activePickedIdx;
+  const playerPicked = playerLegions[playerPickedIdx];
 
-  // 田忌赛马：如果对方有超强武将（power > 我方最强），考虑用最弱的消耗
-  const myStrongest = myAlive.reduce((a, b) => a.l.hero.power > b.l.hero.power ? a : b, myAlive[0]);
-  const enemyStrongest = enemyAlive.reduce((a, b) => a.l.hero.power > b.l.hero.power ? a : b, enemyAlive[0]);
+  // 评估每个 AI 武将对上玩家出战武将的期望
+  const matches = aiAlive.map(ai => ({
+    ...aiEvaluateMatch(ai.i, playerPickedIdx, aiLegions, playerLegions),
+    // aiEvaluateMatch expects (myIdx, enemyIdx, myLegions, enemyLegions)
+    // We need AI as "my" here, but aiEvaluateMatch is designed for active=my
+  }));
 
-  let chosen;
-  if (enemyAlive.length > 1 && enemyStrongest.l.hero.power > myStrongest.l.hero.power + 5) {
-    // 对方最强太强，用我最弱的去消耗（田忌赛马下等马对上等马）
-    const myWeakest = myAlive.reduce((a, b) => a.l.hero.power < b.l.hero.power ? a : b, myAlive[0]);
-    const sacrificeMatch = matches.find(m => m.myIdx === myWeakest.i && m.enemyIdx === enemyStrongest.i);
-    chosen = sacrificeMatch || matches[0];
-    battle.log.push({ msg: `🦊 AI策略：${myLegions[myWeakest.i].hero.name}（弱）消耗 ${enemyLegions[enemyStrongest.i].hero.name}（强）`, type: 'system' });
+  // Actually, aiEvaluateMatch(myIdx, enemyIdx, myLegions, enemyLegions)
+  // evaluates myLegions[myIdx] vs enemyLegions[enemyIdx]
+  // We want: aiLegion vs playerLegion
+  // So call: aiEvaluateMatch(aiIdx, playerIdx, aiLegions, playerLegions)
+  const evals = aiAlive.map(ai => {
+    const myLegion = aiLegions[ai.i];
+    const enemyTroops = playerLegions[playerPickedIdx].troops;
+    const enemyHero = playerLegions[playerPickedIdx].hero;
+    const myPower = myLegion.troops * (1 + myLegion.hero.power / 200);
+    const enemyPower = enemyTroops * (1 + (enemyHero ? enemyHero.power : 0) / 200);
+    const winProb = myPower / (myPower + enemyPower);
+    return {
+      idx: ai.i,
+      score: winProb * 2 - 1,
+      winProb,
+    };
+  });
+
+  evals.sort((a, b) => b.score - a.score);
+
+  // 田忌赛马策略
+  const enemyStrongest = playerAlive.reduce((a, b) => a.l.hero.power > b.l.hero.power ? a : b, playerAlive[0]);
+  const myStrongest = aiAlive.reduce((a, b) => a.l.hero.power > b.l.hero.power ? a : b, aiAlive[0]);
+
+  let chosenAiIdx;
+  if (playerAlive.length > 1 && enemyStrongest.l.hero.power > myStrongest.l.hero.power + 5) {
+    const myWeakest = aiAlive.reduce((a, b) => a.l.hero.power < b.l.hero.power ? a : b, aiAlive[0]);
+    chosenAiIdx = myWeakest.i;
+    battle.log.push({ msg: `🦊 AI策略：${aiLegions[myWeakest.i].hero.name}（弱）迎战 ${playerPicked.hero.name}（强）`, type: 'system' });
   } else {
-    // 用最优匹配
-    chosen = matches[0];
+    chosenAiIdx = evals[0].idx;
   }
 
-  // 判断是否应该战前撤退（我方太弱）
-  if (chosen.score < -0.5 && myAlive.length <= 1 && enemyAlive.length >= 2) {
-    // 只剩一个弱将，打不过，撤退
-    const myIdx = myAlive[0].i;
-    const l = myLegions[myIdx];
-    const activeFactionId = battle.activeSide === 'attacker' ? battle.attackerId : battle.defenderId;
-    const activeFromLocId = battle.activeSide === 'attacker' ? battle.fromLocId : battle.toLocId;
-
-    // AI 自动选择撤退目的地
-    const destLocId = selectRetreatDestination(activeFromLocId, activeFactionId, l.hero.name, false);
-
-    if (destLocId === null) {
-      l.troops = 0;
-      getActiveRetreated().push(myIdx);
-      battle.retreatDest[`${battle.activeSide}_${myIdx}`] = null;
-      battle.log.push({ msg: `💀 AI：${l.hero.name} 无处可退，力战而亡！`, type: 'lose' });
-    } else {
-      const lossPct = Math.random() * 0.30;
-      const loss = Math.max(1, Math.floor(l.troops * lossPct));
-      l.troops -= loss;
-      getActiveRetreated().push(myIdx);
-      battle.retreatDest[`${battle.activeSide}_${myIdx}`] = destLocId;
-      const destName = LOCATIONS.find(loc => loc.id === destLocId).name;
-      battle.log.push({ msg: `🏃 AI：${l.hero.name} 战前撤退至 ${destName}！损失 ${loss} 人`, type: 'system' });
-    }
-
-    const attAlive = battle.attLegions.some((l, i) => l.troops > 0 && !battle.retreated.attacker.includes(i));
-    const defAlive = battle.defLegions.some((l, i) => l.troops > 0 && !battle.retreated.defender.includes(i));
-    if (!attAlive) { endBattle('defender'); return; }
-    if (!defAlive) { endBattle('attacker'); return; }
-    continueAfterResult();
-    return;
+  // 设置最终对战组合
+  if (battle.activeSide === 'attacker') {
+    battle._lastAttIdx = battle._activePickedIdx; // active=attacker picked this
+    battle._lastDefIdx = chosenAiIdx;              // passive=defender picked this
+  } else {
+    battle._lastDefIdx = battle._activePickedIdx;  // active=defender picked this
+    battle._lastAttIdx = chosenAiIdx;              // passive=attacker picked this
   }
+  battle._activePickedIdx = null;
 
-  // 检查是否玩家参战
-  const isPlayerInvolved = battle.attackerId === gameState.factionId || battle.defenderId === gameState.factionId;
-
-  if (isPlayerInvolved) {
-    // AI 只选自己这边的武将，切换回合让玩家选
-    setMySelection(chosen.myIdx);
-    battle.activeSide = battle.activeSide === 'attacker' ? 'defender' : 'attacker';
-    renderBattle();
-    return;
-  }
-
-  // AI vs AI：自动选阵型+自动单挑
-  setMySelection(chosen.myIdx);
-  setEnemySelection(chosen.enemyIdx);
-  battle._lastAttIdx = battle.activeSide === 'attacker' ? chosen.myIdx : chosen.enemyIdx;
-  battle._lastDefIdx = battle.activeSide === 'attacker' ? chosen.enemyIdx : chosen.myIdx;
-
-  renderBattle();
+  // 进入阵型阶段
   battle.phase = 'formation';
   battle.playerFormation = null;
-  const myHero = (battle.activeSide === 'attacker' ? battle.attLegions[battle._lastAttIdx] : battle.defLegions[battle._lastDefIdx]).hero;
-  const enemyHero = (battle.activeSide === 'attacker' ? battle.defLegions[battle._lastDefIdx] : battle.attLegions[battle._lastAttIdx]).hero;
-  battle.aiFormation = aiPickFormation(myHero);
-  battle.playerFormation = aiPickFormation(enemyHero);
-  setTimeout(() => { revealFormations(); autoDuel(); }, 400);
+  battle.aiFormation = null;
+  renderBattle();
+
+  // 检查是否玩家参战（AI vs AI 不需要等待玩家选阵型）
+  const isPlayerInvolved = battle.attackerId === gameState.factionId || battle.defenderId === gameState.factionId;
+  if (!isPlayerInvolved) {
+    // AI vs AI：自动选阵型+自动单挑
+    const aiHero = (battle.activeSide === 'attacker' ? battle.attLegions[battle._lastAttIdx] : battle.defLegions[battle._lastDefIdx]).hero;
+    const enemyHero = (battle.activeSide === 'attacker' ? battle.defLegions[battle._lastDefIdx] : battle.attLegions[battle._lastAttIdx]).hero;
+    battle.aiFormation = aiPickFormation(aiHero);
+    battle.playerFormation = aiPickFormation(enemyHero);
+    setTimeout(() => { revealFormations(); autoDuel(); }, 400);
+  } else {
+    // AI 先选阵型，等玩家也选了就揭示
+    const aiHero = (battle.activeSide === 'attacker' ? battle.attLegions[battle._lastAttIdx] : battle.defLegions[battle._lastDefIdx]).hero;
+    battle.aiFormation = aiPickFormation(aiHero);
+  }
 }
+
+// 旧版 aiPickBoth 保留以供兼容（AI vs AI 的旧路径不再使用）
 
 // ===== 全军撤退 =====
 function retreatAllLegions() {
@@ -3751,15 +3925,22 @@ function retreatAllLegions() {
   if (!confirm('确定全军撤退吗？')) return;
   if (battleResultTimer) { clearTimeout(battleResultTimer); battleResultTimer = null; }
 
+  const isPlayerAttacker = battle.isPlayerAttacker;
+  const side = isPlayerAttacker ? 'attacker' : 'defender';
+  const legions = isPlayerAttacker ? battle.attLegions : battle.defLegions;
+  const retreated = isPlayerAttacker ? battle.retreated.attacker : battle.retreated.defender;
+  const fromLocId = isPlayerAttacker ? battle.fromLocId : battle.toLocId;
+  const factionId = isPlayerAttacker ? battle.attackerId : battle.defenderId;
+
   // 收集可用的撤退目的地
-  const options = getRetreatDestinations(battle.fromLocId, battle.attackerId);
+  const options = getRetreatDestinations(fromLocId, factionId);
   let optIdx = 0;
 
-  battle.attLegions.forEach((l, i) => {
-    if (l.troops > 0 && !battle.retreated.attacker.includes(i)) {
+  legions.forEach((l, i) => {
+    if (l.troops > 0 && !retreated.includes(i)) {
       const loss = Math.max(1, Math.floor(l.troops * (Math.random() * 0.30)));
       l.troops -= loss;
-      battle.retreated.attacker.push(i);
+      retreated.push(i);
 
       // 轮流分配撤退目的地（优先己方据点）
       let destLocId = null;
@@ -3769,16 +3950,17 @@ function retreatAllLegions() {
       }
 
       if (destLocId) {
-        battle.retreatDest[`attacker_${i}`] = destLocId;
+        battle.retreatDest[`${side}_${i}`] = destLocId;
         const destName = LOCATIONS.find(loc => loc.id === destLocId).name;
         battle.log.push({ msg: `🏃 ${l.hero.name} 全军撤退至 ${destName}！损失 ${loss} 人`, type: 'system' });
       } else {
-        battle.retreatDest[`attacker_${i}`] = null;
+        battle.retreatDest[`${side}_${i}`] = null;
         battle.log.push({ msg: `💀 ${l.hero.name} 无处可退，力战而亡！`, type: 'lose' });
       }
     }
   });
-  endBattle('defender');
+  // 玩家撤退 → 对方获胜，据点归对方
+  endBattle(side === 'attacker' ? 'defender' : 'attacker');
 }
 
 // ===== 自动战斗 =====
@@ -3789,7 +3971,45 @@ function autoBattle() {
   const runRound = () => {
     if (!battle || battle.phase === 'finished') return;
 
-    if (battle.phase === 'pick') {
+    if (battle.phase === 'pick_active') {
+      if (isPlayerActive()) {
+        // 玩家是主动方：自动选最强武将
+        const myLegions = getActiveLegions();
+        const myRetreated = getActiveRetreated();
+        const myAlive = myLegions.map((l, i) => ({ l, i })).filter(x => x.l.troops > 0 && !myRetreated.includes(x.i));
+        if (myAlive.length === 0) {
+          endBattle(battle.activeSide === 'attacker' ? 'defender' : 'attacker'); return;
+        }
+        myAlive.sort((a, b) => b.l.hero.power - a.l.hero.power);
+        battle._activePickedIdx = myAlive[0].i;
+        confirmActivePick();
+      } else {
+        aiPickActive();
+      }
+    } else if (battle.phase === 'pick_passive') {
+      if (!isPlayerActive()) {
+        // 玩家是被动方：自动选最强迎战
+        const myLegions = getPassiveLegions();
+        const myRetreated = getPassiveRetreated();
+        const myAlive = myLegions.map((l, i) => ({ l, i })).filter(x => x.l.troops > 0 && !myRetreated.includes(x.i));
+        if (myAlive.length === 0) {
+          endBattle(battle.activeSide === 'attacker' ? 'attacker' : 'defender'); return;
+        }
+        myAlive.sort((a, b) => b.l.hero.power - a.l.hero.power);
+        const playerSide = battle.isPlayerAttacker ? 'attacker' : 'defender';
+        if (playerSide === 'attacker') {
+          battle.selectedAttIdx = myAlive[0].i;
+          battle.selectedDefIdx = battle._activePickedIdx;
+        } else {
+          battle.selectedDefIdx = myAlive[0].i;
+          battle.selectedAttIdx = battle._activePickedIdx;
+        }
+        confirmPassivePick();
+      } else {
+        aiPickPassive();
+      }
+    } else if (battle.phase === 'pick') {
+      // 旧版兼容
       if (isPlayerActive()) {
         const myLegions = getActiveLegions();
         const enemyLegions = getPassiveLegions();
@@ -3797,7 +4017,6 @@ function autoBattle() {
         const enemyRetreated = getPassiveRetreated();
         const myAlive = myLegions.map((l, i) => ({ l, i })).filter(x => x.l.troops > 0 && !myRetreated.includes(x.i));
         const enemyAlive = enemyLegions.map((l, i) => ({ l, i })).filter(x => x.l.troops > 0 && !enemyRetreated.includes(x.i));
-
         if (myAlive.length === 0 || enemyAlive.length === 0) {
           const winner = myAlive.length > 0 ? (battle.activeSide === 'attacker' ? 'attacker' : 'defender') : (battle.activeSide === 'attacker' ? 'defender' : 'attacker');
           endBattle(winner); return;
@@ -3808,7 +4027,8 @@ function autoBattle() {
         setEnemySelection(enemyAlive[0].i);
         confirmBattlePick();
       } else {
-        aiPickBoth();
+        // 旧版 aiPickBoth 不再存在，用新的替代
+        aiPickActive();
       }
     } else if (battle.phase === 'formation') {
       // 自动选阵型：攻方锋矢，守方方圆
