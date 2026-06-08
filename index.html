@@ -3221,15 +3221,12 @@ function selectPlayerFormation(formationIdx) {
 function revealFormations() {
   if (!battle) return;
 
-  const isAttackerActive = battle.activeSide === 'attacker';
-  const attFormation = isAttackerActive ? battle.playerFormation : battle.aiFormation;
-  const defFormation = isAttackerActive ? battle.aiFormation : battle.playerFormation;
+  // playerFormation = 人类玩家的阵型，aiFormation = AI 的阵型
+  const attFormation = battle.isPlayerAttacker ? battle.playerFormation : battle.aiFormation;
+  const defFormation = battle.isPlayerAttacker ? battle.aiFormation : battle.playerFormation;
 
-  // 克制判定
-  const counterInfo = getCounterInfo(
-    isAttackerActive ? attFormation : defFormation,
-    isAttackerActive ? defFormation : attFormation
-  );
+  // 克制判定（攻方阵型 vs 守方阵型）
+  const counterInfo = getCounterInfo(attFormation, defFormation);
 
   battle.currentDuel = {
     attIdx: battle._lastAttIdx,
@@ -3911,8 +3908,9 @@ function aiPickPassive() {
     battle.playerFormation = aiPickFormation(enemyHero);
     setTimeout(() => { revealFormations(); autoDuel(); }, 400);
   } else {
-    // AI 先选阵型，等玩家也选了就揭示
-    const aiHero = (battle.activeSide === 'attacker' ? battle.attLegions[battle._lastAttIdx] : battle.defLegions[battle._lastDefIdx]).hero;
+    // AI（被动方）先选阵型，等玩家（主动方）也选了就揭示
+    // AI 是 passive 方，hero 取 passive 侧的 _lastDefIdx(active=attacker时) 或 _lastAttIdx(active=defender时)
+    const aiHero = (battle.activeSide === 'attacker' ? battle.defLegions[battle._lastDefIdx] : battle.attLegions[battle._lastAttIdx]).hero;
     battle.aiFormation = aiPickFormation(aiHero);
   }
 }
@@ -4031,11 +4029,9 @@ function autoBattle() {
         aiPickActive();
       }
     } else if (battle.phase === 'formation') {
-      // 自动选阵型：攻方锋矢，守方方圆
-      if (isPlayerActive()) {
-        selectPlayerFormation(1); // 锋矢阵
-      }
-      // AI 阵型已在 confirmBattlePick 或 aiPickBoth 中设置
+      // 自动选阵型（需玩家操作时自动选择）
+      selectPlayerFormation(1); // 默认锋矢阵
+      // AI 阵型已在 confirmPassivePick / aiPickPassive 中设置，没设置的话 selectPlayerFormation 会自动补
     } else if (battle.phase === 'duel') {
       // 自动执行单挑
       if (isPlayerInDuel()) {
