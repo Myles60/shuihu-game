@@ -420,7 +420,7 @@ const HERO_POOL = [
   { id: 'zhangqing',   name: '张清',   type: 'warrior',    power: 84, loyalty: 70, skill: { name: '飞石',   desc: '进攻 20% 概率眩晕敌方好汉技能', type: 'attack' } },
   { id: 'yangzhi',     name: '杨志',   type: 'warrior',    power: 83, loyalty: 60, skill: { name: '青面兽', desc: '守城时敌方情报探查失效', type: 'defend' } },
   { id: 'xuning',      name: '徐宁',   type: 'warrior',    power: 82, loyalty: 75, skill: { name: '钩镰枪', desc: '对辽国阵营战力 +20%', type: 'attack' } },
-  { id: 'suochao',     name: '索超',   type: 'warrior',    power: 81, loyalty: 55, skill: { name: '急先锋', desc: '大道行军后可以再行动一次', type: 'march' } },
+  { id: 'suochao',     name: '索超',   type: 'warrior',    power: 81, loyalty: 55, skill: { name: '急先锋', desc: '进攻大道敌方时先手造成 5% 兵力伤害', type: 'attack' } },
   { id: 'shijin',      name: '史进',   type: 'warrior',    power: 80, loyalty: 55, skill: { name: '九纹龙', desc: '每控制一个据点额外 +5% 战力', type: 'attack' } },
   { id: 'lichun',      name: '李俊',   type: 'warrior',    power: 79, loyalty: 50, skill: { name: '混江龙', desc: '水路进攻时不受敌方好汉技能影响', type: 'attack' } },
   { id: 'ruanxiaoqi',  name: '阮小七', type: 'warrior',    power: 78, loyalty: 45, skill: { name: '活阎罗', desc: '水路进攻时敌方据点防御系数 -0.3', type: 'attack' } },
@@ -471,7 +471,7 @@ const HERO_POOL = [
   { id: 'aliqi',       name: '阿里奇', type: 'warrior',    power: 86, loyalty: 90, skill: { name: '铁骑',   desc: '平原/大道进攻时伤害+15%', type: 'attack' } },
   { id: 'qiongyao',    name: '琼妖纳延', type: 'warrior',  power: 83, loyalty: 85, skill: { name: '神箭',   desc: '单挑首回合额外造成15%伤害', type: 'attack' } },
   { id: 'hezhongbao',  name: '贺重宝', type: 'strategist', power: 55, loyalty: 80, skill: { name: '妖术',   desc: '防守时20%概率敌方进攻失败', type: 'defend' } },
-  { id: 'dalibo',      name: '答里孛', type: 'warrior',    power: 72, loyalty: 75, skill: { name: '骁骑',   desc: '行军后兵力不减', type: 'march' } },
+  { id: 'dalibo',      name: '答里孛', type: 'warrior',    power: 72, loyalty: 75, skill: { name: '骁骑',   desc: '进攻时若兵力多于敌方，伤害+15%', type: 'attack' } },
   // === 田虎部将 ===
   { id: 'bianxiang',   name: '卞祥',   type: 'commander',  power: 84, loyalty: 90, skill: { name: '河北将', desc: '每控制一个据点+10%防守战力', type: 'defend' } },
   { id: 'sunan',       name: '孙安',   type: 'warrior',    power: 82, loyalty: 85, skill: { name: '双刀',   desc: '单挑中15%概率反击两次', type: 'attack' } },
@@ -484,7 +484,7 @@ const HERO_POOL = [
   { id: 'yuanlang',    name: '袁朗',   type: 'warrior',    power: 76, loyalty: 75, skill: { name: '铁枪',   desc: '守城时敌步兵伤害-15%', type: 'defend' } },
   // === 梁山补充 ===
   { id: 'yangxiong',   name: '杨雄',   type: 'warrior',    power: 72, loyalty: 60, skill: { name: '病关索', desc: '不受任何地形惩罚', type: 'attack' } },
-  { id: 'leiheng',     name: '雷横',   type: 'warrior',    power: 71, loyalty: 60, skill: { name: '插翅虎', desc: '山路行军速度翻倍', type: 'march' } },
+  { id: 'leiheng',     name: '雷横',   type: 'warrior',    power: 71, loyalty: 60, skill: { name: '插翅虎', desc: '山路进攻额外+12%战力', type: 'attack' } },
   { id: 'lvfang',      name: '吕方',   type: 'warrior',    power: 65, loyalty: 70, skill: { name: '小温侯', desc: '与郭盛同驻时双方+10战力', type: 'special' } },
   { id: 'guosheng',    name: '郭盛',   type: 'warrior',    power: 64, loyalty: 70, skill: { name: '赛仁贵', desc: '与吕方同驻时双方+10战力', type: 'special' } },
   { id: 'xiangchong',  name: '项充',   type: 'warrior',    power: 62, loyalty: 55, skill: { name: '八臂哪吒', desc: '守城时反击率+20%', type: 'defend' } },
@@ -503,6 +503,42 @@ const HERO_POOL = [
   { id: 'wangyin',     name: '王寅',   type: 'warrior',    power: 76, loyalty: 45, skill: { name: '石匠',   desc: '休整时兵力额外回复+30%', type: 'special' } },
   { id: 'xuguanzhong', name: '许贯忠', type: 'strategist', power: 48, loyalty: 50, skill: { name: '隐士',   desc: '巡视时招募率+25%', type: 'special' } },
   { id: 'luozhenren',  name: '罗真人', type: 'strategist', power: 60, loyalty: 70, skill: { name: '天玄',   desc: '每回合该据点额外产粮+40，巡视不触发负面事件', type: 'special' } },
+  // === 扩展武将（第二批）===
+  { id: 'wanghuan',    name: '王焕',   type: 'warrior',    power: 84, loyalty: 70, skill: { name: '老将',   desc: '单挑中每回合防御+5%', type: 'defend' } },
+  { id: 'hanchunbao',  name: '韩存保', type: 'warrior',    power: 77, loyalty: 65, skill: { name: '国士',   desc: '大道进攻时无视敌方阵型克制', type: 'attack' } },
+  { id: 'qiuyue',      name: '丘岳',   type: 'warrior',    power: 75, loyalty: 70, skill: { name: '禁军',   desc: '与朝廷武将同驻时战力+8', type: 'special' } },
+  { id: 'gaoqiu',      name: '高俅',   type: 'commander',  power: 40, loyalty: 60, skill: { name: '太尉',   desc: '征兵消耗粮草-30%', type: 'special' } },
+  { id: 'caijing',     name: '蔡京',   type: 'strategist', power: 35, loyalty: 50, skill: { name: '太师',   desc: '每回合额外获得20粮草', type: 'special' } },
+  { id: 'haosiwen',    name: '郝思文', type: 'warrior',    power: 70, loyalty: 60, skill: { name: '井木犴', desc: '守城时敌方先损失2%兵力', type: 'defend' } },
+  { id: 'xuanzan',     name: '宣赞',   type: 'warrior',    power: 69, loyalty: 65, skill: { name: '丑郡马', desc: '进攻时10%概率敌方无法反击', type: 'attack' } },
+  { id: 'hantao',      name: '韩滔',   type: 'warrior',    power: 63, loyalty: 60, skill: { name: '百胜将', desc: '连赢3回合后伤害+20%', type: 'attack' } },
+  { id: 'pengji',      name: '彭玘',   type: 'warrior',    power: 62, loyalty: 55, skill: { name: '天目将', desc: '可以侦察任意相邻据点', type: 'special' } },
+  { id: 'shantinggui', name: '单廷珪', type: 'warrior',    power: 68, loyalty: 55, skill: { name: '圣水将', desc: '水路进攻伤害+20%', type: 'attack' } },
+  { id: 'weidingguo',  name: '魏定国', type: 'warrior',    power: 67, loyalty: 55, skill: { name: '神火将', desc: '进攻时5%概率造成双倍伤害', type: 'attack' } },
+  { id: 'oupeng',      name: '欧鹏',   type: 'warrior',    power: 64, loyalty: 55, skill: { name: '摩云金翅', desc: '山路进攻免地形惩罚', type: 'attack' } },
+  { id: 'dengfei',     name: '邓飞',   type: 'warrior',    power: 61, loyalty: 60, skill: { name: '火眼狻猊', desc: '巡视时情报获取率+20%', type: 'special' } },
+  { id: 'yanshun',     name: '燕顺',   type: 'warrior',    power: 63, loyalty: 50, skill: { name: '锦毛虎', desc: '山路进攻额外+8%战力', type: 'attack' } },
+  { id: 'yanglin',     name: '杨林',   type: 'warrior',    power: 58, loyalty: 55, skill: { name: '锦豹子', desc: '巡视情报获取率+25%', type: 'special' } },
+  { id: 'peixuan',     name: '裴宣',   type: 'strategist', power: 45, loyalty: 65, skill: { name: '铁面孔目', desc: '守城时敌方攻击-5%', type: 'defend' } },
+  { id: 'shiqian',     name: '时迁',   type: 'strategist', power: 40, loyalty: 45, skill: { name: '鼓上蚤', desc: '巡视时额外发现20粮草', type: 'special' } },
+  { id: 'baisheng',    name: '白胜',   type: 'warrior',    power: 42, loyalty: 40, skill: { name: '白日鼠', desc: '巡视消耗粮草-50%', type: 'special' } },
+  { id: 'tanglong',    name: '汤隆',   type: 'warrior',    power: 55, loyalty: 55, skill: { name: '金钱豹子', desc: '休整时回复+40%', type: 'special' } },
+  { id: 'zhugui',      name: '朱贵',   type: 'warrior',    power: 48, loyalty: 50, skill: { name: '旱地忽律', desc: '巡视好汉发现率+10%', type: 'special' } },
+  { id: 'zhufu',       name: '朱富',   type: 'strategist', power: 43, loyalty: 50, skill: { name: '笑面虎', desc: '招募花费-20%', type: 'special' } },
+  { id: 'lizhong',     name: '李忠',   type: 'warrior',    power: 49, loyalty: 45, skill: { name: '打虎将', desc: '与周通同驻时双方+8战力', type: 'special' } },
+  { id: 'zhoutong',    name: '周通',   type: 'warrior',    power: 46, loyalty: 40, skill: { name: '小霸王', desc: '与李忠同驻时双方+8战力', type: 'special' } },
+  { id: 'duqian',      name: '杜迁',   type: 'warrior',    power: 50, loyalty: 50, skill: { name: '摸着天', desc: '兵力上限+100', type: 'special' } },
+  { id: 'songwan',     name: '宋万',   type: 'warrior',    power: 47, loyalty: 50, skill: { name: '云里金刚', desc: '守城时兵力损耗-10%', type: 'defend' } },
+  { id: 'xueyong',     name: '薛永',   type: 'warrior',    power: 53, loyalty: 45, skill: { name: '病大虫', desc: '单挑中防御+8%', type: 'defend' } },
+  { id: 'caozheng',    name: '曹正',   type: 'warrior',    power: 54, loyalty: 50, skill: { name: '操刀鬼', desc: '休整回复量+30%', type: 'special' } },
+  { id: 'chend',       name: '陈达',   type: 'warrior',    power: 57, loyalty: 50, skill: { name: '跳涧虎', desc: '山路免地形惩罚', type: 'attack' } },
+  { id: 'zhengtianshou',name:'郑天寿', type: 'warrior',    power: 52, loyalty: 45, skill: { name: '白面郎君', desc: '与燕顺同驻时+10战力', type: 'special' } },
+  { id: 'tongwei',     name: '童威',   type: 'warrior',    power: 59, loyalty: 50, skill: { name: '出洞蛟', desc: '水路行军免行动力', type: 'march' } },
+  { id: 'tongmeng',    name: '童猛',   type: 'warrior',    power: 56, loyalty: 50, skill: { name: '翻江蜃', desc: '水路进攻伤害+10%', type: 'attack' } },
+  { id: 'anshenyi',    name: '安道全', type: 'strategist', power: 47, loyalty: 60, skill: { name: '神医',   desc: '休整回复翻倍', type: 'special' } },
+  { id: 'huangfuduan', name: '皇甫端', type: 'strategist', power: 36, loyalty: 50, skill: { name: '紫髯伯', desc: '休整时额外恢复15%兵力', type: 'special' } },
+  { id: 'xiaorang',    name: '萧让',   type: 'strategist', power: 39, loyalty: 55, skill: { name: '圣手书生', desc: '巡视时有文采相伴，招募率+10%', type: 'special' } },
+  { id: 'jindajian',   name: '金大坚', type: 'strategist', power: 38, loyalty: 55, skill: { name: '玉臂匠', desc: '守城时敌方情报探查-15%', type: 'defend' } },
 ];
 
 // ===== 阵型数据 =====
@@ -759,39 +795,60 @@ function createLegion(hero, troops, locationId) {
 
 // 阵营预设将领配置
 const PRESET_HEROES = {
-  guanjun:      [{ id: 'guansheng', troops: 600, loc: 'dongjing' }, { id: 'huyanzhuo', troops: 500, loc: 'qingzhou' }, { id: 'wangjin', troops: 400, loc: 'cangzhou' }, { id: 'zhongshidao', troops: 450, loc: 'dengzhou' }, { id: 'zhouang', troops: 350, loc: 'qingfengshan' }],
-  liao:         [{ id: 'wuyanguang', troops: 600, loc: 'taohuashan' }, { id: 'aliqi', troops: 500, loc: 'erlongshan' }, { id: 'qiongyao', troops: 450, loc: 'baihushan' }, { id: 'hezhongbao', troops: 300, loc: 'taohuashan' }, { id: 'dalibo', troops: 350, loc: 'erlongshan' }],
-  liangshan:    [{ id: 'songjiang', troops: 500, loc: 'liangshanbo' }, { id: 'likui', troops: 450, loc: 'liangshanbo' }, { id: 'huarong', troops: 350, loc: 'shijiecun' }, { id: 'linchong', troops: 400, loc: 'liangshanbo' }, { id: 'wuyong', troops: 250, loc: 'shijiecun' }],
-  damingfu:     [{ id: 'lujunyi', troops: 600, loc: 'damingfu_c' }, { id: 'yanqing', troops: 350, loc: 'damingfu_c' }, { id: 'suochao', troops: 350, loc: 'dongchangfu' }, { id: 'zhangkai', troops: 350, loc: 'yezhulin' }],
-  zhujiazhuang: [{ id: 'yangzhi', troops: 500, loc: 'zhujiazhuang_c' }, { id: 'xiebao', troops: 350, loc: 'zhujiazhuang_c' }, { id: 'xiezhen', troops: 300, loc: 'zhujiazhuang_c' }, { id: 'husanniang', troops: 300, loc: 'zhujiazhuang_c' }],
-  tianhu:       [{ id: 'bianxiang', troops: 500, loc: 'shaohuashan' }, { id: 'sunan', troops: 450, loc: 'dulonggang' }, { id: 'shijin', troops: 400, loc: 'shaohuashan' }, { id: 'qiongying', troops: 350, loc: 'dulonggang' }],
-  wangqing:     [{ id: 'lizhu', troops: 550, loc: 'jiangzhou' }, { id: 'duxue', troops: 500, loc: 'xunyangjiang' }, { id: 'liutang', troops: 400, loc: 'jiangzhou' }, { id: 'shixiu', troops: 350, loc: 'xunyangjiang' }],
-  fangla:       [{ id: 'fangla_h', troops: 700, loc: 'hangzhou' }, { id: 'shibao', troops: 500, loc: 'qingxixian' }, { id: 'dengyuanjue', troops: 400, loc: 'muzhou' }, { id: 'fangmao', troops: 400, loc: 'shezhou' }, { id: 'sixingfang', troops: 380, loc: 'hangzhou' }],
+  guanjun:      [{ id: 'guansheng', troops: 900, loc: 'dongjing' }, { id: 'huyanzhuo', troops: 750, loc: 'qingzhou' }, { id: 'wangjin', troops: 600, loc: 'cangzhou' }, { id: 'zhongshidao', troops: 700, loc: 'dengzhou' }, { id: 'zhouang', troops: 550, loc: 'qingfengshan' }],
+  liao:         [{ id: 'wuyanguang', troops: 900, loc: 'taohuashan' }, { id: 'aliqi', troops: 750, loc: 'erlongshan' }, { id: 'qiongyao', troops: 700, loc: 'baihushan' }, { id: 'hezhongbao', troops: 450, loc: 'taohuashan' }, { id: 'dalibo', troops: 550, loc: 'erlongshan' }],
+  liangshan:    [{ id: 'songjiang', troops: 800, loc: 'liangshanbo' }, { id: 'likui', troops: 700, loc: 'liangshanbo' }, { id: 'huarong', troops: 550, loc: 'shijiecun' }, { id: 'linchong', troops: 650, loc: 'liangshanbo' }, { id: 'wuyong', troops: 400, loc: 'shijiecun' }],
+  damingfu:     [{ id: 'lujunyi', troops: 900, loc: 'damingfu_c' }, { id: 'yanqing', troops: 550, loc: 'damingfu_c' }, { id: 'suochao', troops: 550, loc: 'dongchangfu' }, { id: 'zhangkai', troops: 550, loc: 'yezhulin' }],
+  zhujiazhuang: [{ id: 'yangzhi', troops: 750, loc: 'zhujiazhuang_c' }, { id: 'xiebao', troops: 550, loc: 'zhujiazhuang_c' }, { id: 'xiezhen', troops: 500, loc: 'zhujiazhuang_c' }, { id: 'husanniang', troops: 500, loc: 'zhujiazhuang_c' }],
+  tianhu:       [{ id: 'bianxiang', troops: 800, loc: 'shaohuashan' }, { id: 'sunan', troops: 700, loc: 'dulonggang' }, { id: 'shijin', troops: 650, loc: 'shaohuashan' }, { id: 'qiongying', troops: 550, loc: 'dulonggang' }],
+  wangqing:     [{ id: 'lizhu', troops: 850, loc: 'jiangzhou' }, { id: 'duxue', troops: 750, loc: 'xunyangjiang' }, { id: 'liutang', troops: 650, loc: 'jiangzhou' }, { id: 'shixiu', troops: 550, loc: 'xunyangjiang' }],
+  fangla:       [{ id: 'fangla_h', troops: 1000, loc: 'hangzhou' }, { id: 'shibao', troops: 750, loc: 'qingxixian' }, { id: 'dengyuanjue', troops: 650, loc: 'muzhou' }, { id: 'fangmao', troops: 650, loc: 'shezhou' }, { id: 'sixingfang', troops: 600, loc: 'hangzhou' }],
 };
 
-// ===== 据点专属巡视招募武将 =====
+// ===== 据点专属巡视招募武将（每据点强/中/弱搭配）=====
 const LOCATION_HEROES = {
-  jingyanggang:  ['wusong'],
-  yezhulin:      ['luzhishen'],
-  huangnigang:   ['chaogai'],
-  shizipo:       ['sunxin', 'gudasao'],
-  kuaihuolin:    ['shien'],
-  xunyangjiang:  ['zhangshun', 'lichun'],
-  kushushan:     ['zourun'],
-  mangdangshan:  ['zhangheng'],
-  dongpingfu:    ['dongping'],
-  liangshanbo:   ['linchong'],
-  erlongshan:    ['yangzhi'],
-  taohuashan:    ['zhangqing'],
-  baihushan:     ['muhong'],
-  shaohuashan:   ['zhuwu'],
-  qingfengshan:  ['qinming'],
-  dengzhou:      ['sunli'],
-  qingzhou:      ['huyanzhuo'],
-  dongchangfu:   ['zhutong'],
-  zengtoushi_c:  ['xuning'],
-  dulonggang:    ['liying'],
-  jiangzhou:     ['daizong'],
+  // 朝廷区域
+  dongjing:       ['guansheng', 'qiuyue', 'wangjin', 'gaoqiu', 'caijing'],
+  qingzhou:       ['huyanzhuo', 'qinming', 'haosiwen', 'zhangshuye'],
+  cangzhou:       ['linchong', 'xuning', 'chaijin', 'duqian'],
+  dengzhou:       ['sunli', 'xiebao', 'xiezhen', 'gudasao', 'sunxin'],
+  qingfengshan:   ['huarong', 'liutang', 'hantao', 'pengji'],
+  // 方腊区域
+  hangzhou:       ['fangla_h', 'fangjie', 'sixingfang', 'wangyin', 'xuguanzhong'],
+  qingxixian:     ['shibao', 'pangwanchun', 'litianrun', 'baisheng'],
+  muzhou:         ['dengyuanjue', 'fangmao', 'baodaoyi', 'tongwei', 'tongmeng'],
+  shezhou:        ['shibao', 'litianrun', 'zourun', 'chend'],
+  // 梁山区域
+  liangshanbo:    ['songjiang', 'likui', 'wuyong', 'gongsunsheng', 'zhugui'],
+  shijiecun:      ['ruanxiaoqi', 'ruanxiaoer', 'ruanxiaowu', 'zhangshun', 'lichun'],
+  // 大名府区域
+  damingfu_c:     ['lujunyi', 'yanqing', 'suochao', 'zhangkai', 'anshenyi'],
+  dongchangfu:    ['zhangqing', 'zhutong', 'xuanzan', 'peixuan'],
+  yezhulin:       ['luzhishen', 'linchong', 'xueyong', 'caozheng'],
+  // 祝家庄区域
+  zhujiazhuang_c: ['yangzhi', 'husanniang', 'liying', 'tanglong', 'zhoutong'],
+  // 田虎区域
+  shaohuashan:    ['shijin', 'zhuwu', 'yanshun', 'zhengtianshou', 'chend'],
+  dulonggang:     ['bianxiang', 'sunan', 'qiongying', 'qiaoqing', 'oupeng'],
+  // 王庆区域
+  jiangzhou:      ['lizhu', 'duxue', 'daizong', 'zhangheng', 'leiheng'],
+  xunyangjiang:   ['lichun', 'zhangshun', 'tongwei', 'tongmeng', 'shiqian'],
+  // 辽国区域
+  erlongshan:     ['luzhishen', 'yangzhi', 'caozheng', 'songwan'],
+  taohuashan:     ['aliqi', 'dalibo', 'lizhong', 'zhoutong'],
+  baihushan:      ['qiongyao', 'wuyanguang', 'muhong', 'yanshun'],
+  // 中立山寨
+  zengtoushi_c:   ['hanchunbao', 'shantinggui', 'weidingguo', 'hantao', 'tanglong'],
+  dongpingfu:     ['dongping', 'muhong', 'yangxiong', 'dengfei'],
+  mangdangshan:   ['xiangchong', 'ligun', 'oupeng', 'shiqian'],
+  kushushan:      ['shixiu', 'yangxiong', 'zourun', 'yanglin'],
+  // 事件地点
+  jingyanggang:   ['wusong', 'shien', 'xueyong', 'zhugui'],
+  huangnigang:    ['chaogai', 'gongsunsheng', 'baisheng', 'liutang'],
+  kuaihuolin:     ['wusong', 'shien', 'lizhong', 'zhufu'],
+  shizipo:        ['sunxin', 'gudasao', 'zhangqing', 'xiaorang', 'jindajian'],
+  // 特殊隐藏
+  _hidden:        ['jiashihan', 'zhanghaoyu', 'zhangyongxu', 'masheng'],
 };
 
 function initGame(factionId) {
@@ -1110,10 +1167,7 @@ function showAttackOptions(fromLocId) {
     }),
   };
 
-  if (targets.length === 1) {
-    confirmAttackTarget(0);
-    return;
-  }
+  // 始终显示目标列表，让玩家确认（避免误操作）
   renderAttackTargets();
 }
 
@@ -1540,11 +1594,54 @@ function doRest(locId) {
   if (myLegions.length === 1) {
     restLegion(myLegions[0], loc);
   } else {
-    const list = myLegions.map((l, i) => `${i + 1}. ${l.hero.name} (${l.troops}人)`).join('\n');
-    const c = prompt('选择休整的军团：\n' + list + '\n输入序号：');
-    const idx = parseInt(c) - 1;
-    if (idx >= 0 && idx < myLegions.length) restLegion(myLegions[idx], loc);
+    // 多将领时在面板选择
+    showRestLegionSelection(locId);
   }
+}
+
+// 休整将领选择面板
+let pendingRestSelection = null; // { locId }
+
+function showRestLegionSelection(locId) {
+  const myLegions = getLegionsAt(locId, gameState.factionId);
+  const loc = LOCATIONS.find(l => l.id === locId);
+  pendingRestSelection = { locId };
+  const btnPanel = document.getElementById('action-buttons');
+  let html = '<div style="font-size:13px;color:#ffa500;margin-bottom:6px;">🏕️ 选择休整的军团：</div>';
+  myLegions.forEach((l, i) => {
+    const cap = getHeroTroopCap(l.hero);
+    const healAmount = getRestHealAmount(l, loc);
+    const afterHeal = Math.min(l.troops + healAmount, cap);
+    html += `<button onclick="confirmRestLegion(${i})" style="width:100%;text-align:left;margin-bottom:4px;">
+      ⭐${l.hero.name} <span style="color:#888;">战力${l.hero.power}</span> — ${l.troops}/${cap} 人
+      <span style="color:#4caf50;font-size:11px;">(+${healAmount} → ${afterHeal})</span>
+    </button>`;
+  });
+  html += `<button onclick="cancelRestSelection()" style="width:100%;background:linear-gradient(180deg,#555,#333);border-color:#888;">✖ 取消</button>`;
+  btnPanel.innerHTML = html;
+}
+
+function getRestHealAmount(legion, loc) {
+  let heal = Math.floor(loc.baseGrain * 1.5);
+  if (legion.hero.id === 'linchong') heal = Math.floor(heal * 1.5);
+  if (legion.hero.id === 'wangjin') heal = Math.floor(heal * 1.6);
+  return heal;
+}
+
+function confirmRestLegion(idx) {
+  if (!pendingRestSelection) return;
+  const locId = pendingRestSelection.locId;
+  const myLegions = getLegionsAt(locId, gameState.factionId);
+  const loc = LOCATIONS.find(l => l.id === locId);
+  if (idx >= 0 && idx < myLegions.length) {
+    restLegion(myLegions[idx], loc);
+  }
+  pendingRestSelection = null;
+}
+
+function cancelRestSelection() {
+  pendingRestSelection = null;
+  updateSidePanel();
 }
 
 function restLegion(legion, loc) {
@@ -1664,10 +1761,11 @@ function recruitHero(locId) {
     return;
   }
 
-  // 📍 据点专属武将：优先从本据点特定武将池招募
+  // 📍 据点专属武将：按据点等级概率出本地武将
   const locHeroes = LOCATION_HEROES[locId] || [];
   const availableLocHeroes = locHeroes.filter(hid => !gameState.usedHeroIds.has(hid));
-  if (availableLocHeroes.length > 0 && Math.random() < 0.55) {
+  const localChance = loc.type === 'capital' ? 0.40 : (loc.type === 'city' ? 0.30 : 0.20);
+  if (availableLocHeroes.length > 0 && Math.random() < localChance) {
     const heroId = availableLocHeroes[Math.floor(Math.random() * availableLocHeroes.length)];
     const hero = HERO_POOL.find(h => h.id === heroId);
     if (hero) {
@@ -1869,10 +1967,10 @@ function executeAITurn(factionId, animations) {
   }
 
   const styleParams = {
-    aggressive: { attackChance: 0.80, minTroopRatio: 0.3, minAdvantage: 0.7,  patrolChance: 0.08, restFocus: false },
-    balanced:   { attackChance: 0.55, minTroopRatio: 0.35, minAdvantage: 0.9,  patrolChance: 0.18, restFocus: false },
-    cautious:   { attackChance: 0.35, minTroopRatio: 0.45, minAdvantage: 1.1,  patrolChance: 0.25, restFocus: true },
-    defensive:  { attackChance: 0.20, minTroopRatio: 0.55, minAdvantage: 1.3,  patrolChance: 0.30, restFocus: true },
+    aggressive: { attackChance: 0.70, minTroopRatio: 0.3, minAdvantage: 0.7,  patrolChance: 0.20, restFocus: false },
+    balanced:   { attackChance: 0.45, minTroopRatio: 0.35, minAdvantage: 0.9,  patrolChance: 0.35, restFocus: false },
+    cautious:   { attackChance: 0.28, minTroopRatio: 0.45, minAdvantage: 1.1,  patrolChance: 0.45, restFocus: true },
+    defensive:  { attackChance: 0.15, minTroopRatio: 0.55, minAdvantage: 1.3,  patrolChance: 0.50, restFocus: true },
   };
   const sp = styleParams[dynamicAggression] || styleParams.balanced;
 
@@ -1897,7 +1995,7 @@ function executeAITurn(factionId, animations) {
       if (getNeighbors(legion.locationId).some(n => n.locationId === target)) {
         legion.locationId = target;
         if (!gameState.locations[target].owner) gameState.locations[target].owner = factionId;
-        addLog(`🛡️ ${faction.name}调${legion.hero.name}驻防${LOCATIONS.find(l=>l.id===target).name}`, 'info');
+        // AI驻防（不显示日志）
       }
     }
   }
@@ -2025,7 +2123,7 @@ function executeAITurn(factionId, animations) {
           const destName = LOCATIONS.find(l => l.id === frontNeighbor.locationId).name;
           movable.locationId = frontNeighbor.locationId;
           if (!gameState.locations[frontNeighbor.locationId].owner) gameState.locations[frontNeighbor.locationId].owner = factionId;
-          addLog(`🚛 ${faction.name}${movable.hero.name} 率 ${movable.troops} 人从后方调至 ${destName}！`, 'info');
+          // AI运输（不显示日志）
         }
       }
     }
@@ -2042,7 +2140,7 @@ function executeAITurn(factionId, animations) {
           const actualAmount = Math.floor(actualCost / 1.3);
           target.troops = Math.min(target.troops + actualAmount, getHeroTroopCap(target.hero));
           gameState.locations[target.locationId].grain -= actualCost;
-          addLog(`🏋️ ${faction.name} 在 ${LOCATIONS.find(l=>l.id===target.locationId).name} 征兵 +${actualAmount} 人（花费 ${actualCost} 粮）`, 'info');
+          // AI征兵（不显示日志）
         }
       }
     }
@@ -2056,14 +2154,14 @@ function executeAITurn(factionId, animations) {
     else if (Math.random() < sp.patrolChance) {
       const legion = myLegions[Math.floor(Math.random() * myLegions.length)];
       const locGrain = gameState.locations[legion.locationId].grain || 0;
-      if (locGrain >= 30 && Math.random() < 0.3 && myLegions.length < 6) {
+      if (locGrain >= 20 && Math.random() < 0.50 && myLegions.length < 10) {
         const pool = HERO_POOL.filter(h => !gameState.usedHeroIds.has(h.id) && !h.hidden);
         if (pool.length > 0) {
           const hero = pool[Math.floor(Math.random() * pool.length)];
           fData.legions.push(createLegion(hero, hero.type === 'commander' ? 300 : (hero.type === 'warrior' ? 250 : 200), legion.locationId));
           gameState.usedHeroIds.add(hero.id);
-          gameState.locations[legion.locationId].grain -= 40;
-          addLog(`${faction.name} 巡视招募了 ${hero.name}！`, 'info');
+          gameState.locations[legion.locationId].grain -= 30;
+          // AI巡视招募（不显示日志）
         }
       }
     }
@@ -2127,7 +2225,7 @@ function endTurn() {
 
     const f = aiFactions[aiIdx];
     const faction = FACTIONS.find(ff => ff.id === f.id);
-    addLog(`🤖 ${faction.name} 行动中...`, 'info');
+    // AI行动开始（不显示日志）
 
     // 执行AI，收集动画
     const animations = [];
@@ -2298,6 +2396,16 @@ function setupMapClick() {
       const dist = Math.sqrt((mx - sx) ** 2 + (my - sy) ** 2);
       if (dist < 32 && dist < minDist) { clicked = loc.id; minDist = dist; }
     });
+
+    // 撤退模式：地图选目的地
+    if (pendingBattleRetreat && clicked) {
+      if (handleRetreatMapClick(clicked)) {
+        renderMap();
+        updateSidePanel();
+        return;
+      }
+    }
+
     selectedLocation = clicked;
     renderMap();
     updateSidePanel();
@@ -2400,6 +2508,31 @@ function renderMap() {
     ctx.globalAlpha = 1;
   });
 
+  // ===== 撤退模式：高亮可选目的地 =====
+  if (pendingBattleRetreat && pendingBattleRetreat.options) {
+    pendingBattleRetreat.options.forEach(o => {
+      const loc = LOCATIONS.find(l => l.id === o.locationId);
+      if (!loc) return;
+      const { sx, sy } = scaleCoord(loc.x, loc.y);
+      const r = 28 * BW;
+      // 脉冲光圈
+      const pulse = 0.6 + 0.4 * Math.sin(Date.now() / 500);
+      ctx.beginPath(); ctx.arc(sx, sy, r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(76,175,80,${0.3 * pulse})`;
+      ctx.fill();
+      ctx.strokeStyle = '#4caf50';
+      ctx.lineWidth = 3 * BW;
+      ctx.setLineDash([6 * BW, 3 * BW]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      // 标签
+      ctx.fillStyle = '#4caf50';
+      ctx.font = `bold ${13 * BW}px "Microsoft YaHei"`;
+      ctx.textAlign = 'center';
+      ctx.fillText('📍 可撤退', sx, sy - 35 * BW);
+    });
+  }
+
   // ===== 据点 =====
   LOCATIONS.forEach(loc => {
     const { sx, sy } = scaleCoord(loc.x, loc.y);
@@ -2430,19 +2563,6 @@ function renderMap() {
     ctx.fillStyle = color; ctx.fill();
     ctx.strokeStyle = '#fff'; ctx.lineWidth = 2.5 * BW; ctx.stroke();
     ctx.strokeStyle = '#333'; ctx.lineWidth = 2 * BW; ctx.stroke();
-
-    // 兵力小条
-    if (effOwner) {
-      const total = getTotalTroops(loc.id, effOwner);
-      if (total > 0) {
-        const bw = 42 * BW, bh = 7 * BW, barY = sy + 25 * BW;
-        ctx.fillStyle = '#ddd';
-        ctx.beginPath(); ctx.roundRect(sx - bw / 2, barY, bw, bh, 3); ctx.fill();
-        const ratio = Math.min(total / 1500, 1);
-        ctx.fillStyle = ratio > 0.5 ? '#4caf50' : (ratio > 0.25 ? '#ff9800' : '#f44336');
-        ctx.beginPath(); ctx.roundRect(sx - bw / 2, barY, bw * ratio, bh, 3); ctx.fill();
-      }
-    }
 
     // 名称
     ctx.fillStyle = '#111';
@@ -2750,10 +2870,11 @@ function startBattle(attackerId, defenderId, fromLocId, toLocId, terrain, isPlay
     attLegions, defLegions,
     selectedAttIdx: null, selectedDefIdx: null,
     activeSide: 'attacker',
-    phase: 'pick_active',
+    phase: 'action_choice',
     round: 1,
     log: [],
     retreated: { attacker: [], defender: [] },
+    surrendered: { attacker: [], defender: [] },
     retreatDest: {}, // { 'attacker_0': locId, 'defender_1': locId } 撤退目的地
     lastResult: null,
     _activePickedIdx: null, // 主动方选中的武将索引
@@ -2761,11 +2882,47 @@ function startBattle(attackerId, defenderId, fromLocId, toLocId, terrain, isPlay
     defHeroIds: defLegions.map(l => l.hero.id),
   };
 
+  // AI vs AI：自动结算，不弹战斗界面
+  const playerInvolved = battle.attackerId === gameState.factionId || battle.defenderId === gameState.factionId;
+  if (!playerInvolved) {
+    autoResolveAIBattle();
+    return;
+  }
+
   document.getElementById('battle-overlay').classList.add('active');
   renderBattle();
   if (!isPlayerActive()) {
-    setTimeout(() => aiPickActive(), 800);
+    battle._aiActionTimer = setTimeout(() => aiChooseAction(), 700);
   }
+}
+
+// AI vs AI 自动战斗结算
+function autoResolveAIBattle() {
+  const attPower = battle.attLegions.reduce((s, l) => s + l.troops * (1 + l.hero.power / 200), 0);
+  const defPower = battle.defLegions.reduce((s, l) => s + l.troops * (1 + l.hero.power / 200), 0);
+  const terrainMod = { road: 1.0, mountain: 0.75, water: 0.60 };
+  const attEff = attPower * (terrainMod[battle.terrain] || 1.0);
+  const defEff = defPower * 1.1;
+
+  let winner;
+  if (attEff > defEff * 1.3) {
+    winner = 'attacker';
+  } else if (defEff > attEff * 1.3) {
+    winner = 'defender';
+  } else {
+    winner = Math.random() < 0.5 ? 'attacker' : 'defender';
+  }
+
+  // 应用损失
+  const attTotal = battle.attLegions.reduce((s, l) => s + l.troops, 0);
+  const defTotal = battle.defLegions.reduce((s, l) => s + l.troops, 0);
+  const attLossPct = winner === 'attacker' ? (0.15 + Math.random() * 0.15) : (0.50 + Math.random() * 0.30);
+  const defLossPct = winner === 'defender' ? (0.15 + Math.random() * 0.15) : (0.50 + Math.random() * 0.30);
+
+  battle.attLegions.forEach(l => { l.troops = Math.max(0, Math.floor(l.troops * (1 - attLossPct))); });
+  battle.defLegions.forEach(l => { l.troops = Math.max(0, Math.floor(l.troops * (1 - defLossPct))); });
+
+  endBattle(winner);
 }
 
 function endBattle(winner) {
@@ -2786,9 +2943,10 @@ function endBattle(winner) {
     );
   }
 
-  // 写回进攻方（非撤退军团）
+  // 写回进攻方（非撤退、非叛变军团）
+  const attSurrendered = battle.surrendered ? battle.surrendered.attacker : [];
   battle.attLegions.forEach((l, i) => {
-    if (!battle.retreated.attacker.includes(i) && l.troops > 0) {
+    if (!battle.retreated.attacker.includes(i) && !attSurrendered.includes(i) && l.troops > 0) {
       const locId = winner === 'attacker' ? battle.toLocId : battle.fromLocId;
       attFactionData.legions.push(createLegion(l.hero, l.troops, locId));
     }
@@ -2815,8 +2973,9 @@ function endBattle(winner) {
   });
 
   // 写回防守方（非撤退军团）
+  const defSurrendered = battle.surrendered ? battle.surrendered.defender : [];
   battle.defLegions.forEach((l, i) => {
-    if (!battle.retreated.defender.includes(i) && l.troops > 0 && battle.defenderId) {
+    if (!battle.retreated.defender.includes(i) && !defSurrendered.includes(i) && l.troops > 0 && battle.defenderId) {
       defFactionData.legions.push(createLegion(l.hero, l.troops, battle.toLocId));
     }
   });
@@ -2848,32 +3007,116 @@ function endBattle(winner) {
     }
   });
 
+  // ===== 处理叛变投降（武将投靠敌方阵营）=====
+  if (battle.surrendered) {
+    // 进攻方叛变 → 投靠防守方
+    battle.surrendered.attacker.forEach(i => {
+      const l = battle.attLegions[i];
+      if (l && l.troops > 0 && battle.defenderId) {
+        defFactionData.legions.push(createLegion(l.hero, l.troops, battle.toLocId));
+        addLog(`🏳️ ${l.hero.name} 叛变投靠了${battle.defFaction.name}！`, 'system');
+      }
+    });
+    // 防守方叛变 → 投靠进攻方
+    battle.surrendered.defender.forEach(i => {
+      const l = battle.defLegions[i];
+      if (l && l.troops > 0 && battle.attackerId) {
+        attFactionData.legions.push(createLegion(l.hero, l.troops, battle.fromLocId));
+        addLog(`🏳️ ${l.hero.name} 叛变投靠了${battle.attFaction.name}！`, 'system');
+      }
+    });
+  }
+
+  // 生成战斗结果消息
+  let resultTitle, resultMsg, resultColor;
+  const playerInvolved = battle.attackerId === gameState.factionId || battle.defenderId === gameState.factionId;
+  const playerIsAttacker = battle.attackerId === gameState.factionId;
+  const playerIsDefender = battle.defenderId === gameState.factionId;
+
   if (winner === 'attacker') {
     gameState.locations[battle.toLocId].owner = battle.attackerId;
     if (battle.isPlayerAttacker) gameState.actionPoints -= 1;
-    addLog(`⚔️ ${battle.attFaction.name} 攻占 ${battle.toLoc.name}！`, 'good');
+    if (playerInvolved) {
+      addLog(`⚔️ ${battle.attFaction.name} 攻占 ${battle.toLoc.name}！`, 'good');
+    } else {
+      addLog(`⚔️ ${battle.attFaction.name} 攻占 ${battle.toLoc.name}`, 'good');
+    }
     battle.defLegions.forEach((l, i) => {
       if (l.troops <= 0 && !battle.retreated.defender.includes(i)) {
         const alreadyOwned = attFactionData.legions.some(al => al.hero.id === l.hero.id);
         if (!alreadyOwned) {
           attFactionData.legions.push(createLegion(l.hero, Math.floor(l.origTroops * 0.25), battle.toLocId));
-          addLog(`⛓️ 俘虏了 ${l.hero.name}！加入你的阵营！`, 'good');
+          if (playerInvolved) addLog(`⛓️ 俘虏了 ${l.hero.name}！加入你的阵营！`, 'good');
         }
       }
     });
+    if (playerInvolved) {
+      if (playerIsAttacker) {
+        resultTitle = '🏆 进攻大胜！';
+        resultMsg = `我军成功攻占 ${battle.toLoc.name}！`;
+        resultColor = '#4caf50';
+      } else {
+        resultTitle = '💀 防守失败！';
+        resultMsg = `${battle.toLoc.name} 被 ${battle.attFaction.name} 攻陷！`;
+        resultColor = '#f44336';
+      }
+    }
   } else if (winner === 'draw') {
     if (battle.isPlayerAttacker) gameState.actionPoints -= 1;
-    addLog(`🤝 双方武将在 ${battle.toLoc.name} 同归于尽！`, 'info');
+    if (playerInvolved) {
+      addLog(`🤝 双方武将在 ${battle.toLoc.name} 同归于尽！`, 'info');
+    } else {
+      addLog(`🤝 ${battle.attFaction.name} 与 ${battle.defFaction ? battle.defFaction.name : '中立军'} 在 ${battle.toLoc.name} 两败俱伤`, 'info');
+    }
+    if (playerInvolved) {
+      resultTitle = '🤝 同归于尽！';
+      resultMsg = `双方武将在 ${battle.toLoc.name} 玉石俱焚！`;
+      resultColor = '#ffa500';
+    }
   } else {
     if (battle.isPlayerAttacker) gameState.actionPoints -= 1;
-    addLog(`🛡️ ${battle.defFaction ? battle.defFaction.name : '中立军'} 守住了 ${battle.toLoc.name}！`, 'info');
+    if (playerInvolved) {
+      addLog(`🛡️ ${battle.defFaction ? battle.defFaction.name : '中立军'} 守住了 ${battle.toLoc.name}！`, 'info');
+    } else {
+      addLog(`🛡️ ${battle.defFaction ? battle.defFaction.name : '中立军'} 守住 ${battle.toLoc.name}（击退 ${battle.attFaction.name}）`, 'info');
+    }
+    if (playerInvolved) {
+      if (playerIsAttacker) {
+        resultTitle = '😞 进攻失败！';
+        resultMsg = `未能攻下 ${battle.toLoc.name}，敌军守备顽强！`;
+        resultColor = '#f44336';
+      } else {
+        resultTitle = '🎉 防守成功！';
+        resultMsg = `成功守住 ${battle.toLoc.name}，击退敌军！`;
+        resultColor = '#4caf50';
+      }
+    }
+  }
+
+  // 在战斗界面显示结果
+  if (playerInvolved && resultTitle) {
+    document.getElementById('battle-phase-hint').innerHTML = `<span style="color:${resultColor};font-size:18px;font-weight:bold;">${resultTitle}</span>`;
+    document.getElementById('battle-info-text').textContent = resultMsg;
+    document.getElementById('battle-actions').innerHTML = `<span style="color:${resultColor};font-size:14px;font-weight:bold;text-align:center;width:100%;">${resultMsg}</span>`;
+    document.getElementById('battle-log-area').innerHTML +=
+      `<div class="battle-log-entry system" style="font-size:16px;text-align:center;color:${resultColor};font-weight:bold;padding:8px;">${resultTitle} ${resultMsg}</div>`;
   }
 
   // 动态归属：进攻方离开后原据点可能变中立
   updateLocationOwnership(battle.fromLocId);
 
-  document.getElementById('battle-overlay').classList.remove('active');
-  battle = null;
+  // 延迟关闭战斗界面，让玩家看到结果
+  const closeBattle = () => {
+    document.getElementById('battle-overlay').classList.remove('active');
+    pendingBattleRetreat = null; // 清理撤退模式
+    battle = null;
+  };
+
+  if (playerInvolved && resultTitle) {
+    setTimeout(closeBattle, 2000);
+  } else {
+    closeBattle();
+  }
   updateActionPoints();
   renderMap();
   updateUI();
@@ -2893,6 +3136,9 @@ function endBattle(winner) {
 function renderBattle() {
   if (!battle) return;
 
+  // 战斗已结束：保持结果展示，不覆盖UI
+  if (battle.phase === 'finished') return;
+
   const tNames = { road: '大道', mountain: '山路', water: '水路' };
   document.getElementById('battle-info-text').textContent =
     `${battle.attFaction.name} ${battle.fromLoc.name} → ${battle.toLoc.name}（${tNames[battle.terrain] || '?'}）`;
@@ -2901,6 +3147,52 @@ function renderBattle() {
     `⚔️ ${battle.attFaction.name} <span style="font-size:12px;color:#aaa;">(${battle.fromLoc.name})</span>`;
   document.getElementById('battle-defender-title').innerHTML =
     `🛡️ ${battle.defFaction ? battle.defFaction.name : '中立'} <span style="font-size:12px;color:#aaa;">(${battle.toLoc.name})</span>`;
+
+  // ===== 行动选择阶段 =====
+  if (battle.phase === 'action_choice') {
+    const activeName = battle.activeSide === 'attacker' ? battle.attFaction.name : (battle.defFaction ? battle.defFaction.name : '中立');
+    document.getElementById('battle-attacker-title').innerHTML =
+      `⚔️ ${battle.attFaction.name} <span style="font-size:12px;color:#aaa;">(${battle.fromLoc.name})</span>${battle.activeSide === 'attacker' ? ' <span style="color:#ffd700;font-size:11px;">⚡行动中</span>' : ''}`;
+    document.getElementById('battle-defender-title').innerHTML =
+      `🛡️ ${battle.defFaction ? battle.defFaction.name : '中立'} <span style="font-size:12px;color:#aaa;">(${battle.toLoc.name})</span>${battle.activeSide === 'defender' ? ' <span style="color:#ffd700;font-size:11px;">⚡行动中</span>' : ''}`;
+
+    // 渲染双方武将概况
+    document.getElementById('battle-attacker-cards').innerHTML = battle.attLegions.map((l, i) => {
+      const dead = l.troops <= 0 || battle.retreated.attacker.includes(i);
+      return `<div class="battle-card${dead ? ' dead' : ''}" style="pointer-events:none;">
+        <div class="card-name">⭐ ${l.hero.name}</div>
+        <div class="card-troops">${dead ? '💀' : l.troops + ' 人'}</div>
+      </div>`;
+    }).join('');
+    document.getElementById('battle-defender-cards').innerHTML = battle.defLegions.map((l, i) => {
+      const dead = l.troops <= 0 || battle.retreated.defender.includes(i);
+      return `<div class="battle-card${dead ? ' dead' : ''}" style="pointer-events:none;">
+        <div class="card-name">⭐ ${l.hero.name}</div>
+        <div class="card-troops">${dead ? '💀' : l.troops + ' 人'}</div>
+      </div>`;
+    }).join('');
+
+    document.getElementById('battle-phase-hint').textContent = `👉 ${activeName} 的回合：选择行动`;
+    document.getElementById('battle-log-area').innerHTML = battle.log.map(l =>
+      `<div class="battle-log-entry ${l.type}">${l.msg}</div>`
+    ).join('');
+
+    const btnPanel = document.getElementById('battle-actions');
+    if (isPlayerActive()) {
+      const canFight = getActiveLegions().some((l, i) => l.troops > 0 && !getActiveRetreated().includes(i));
+      const canRetreat = getActiveLegions().some((l, i) => l.troops > 0 && !getActiveRetreated().includes(i));
+      btnPanel.innerHTML = `
+        <button class="confirm" onclick="chooseActionFight()" ${!canFight ? 'disabled' : ''}>⚔️ 出战</button>
+        <button class="danger" onclick="chooseActionRetreat()" ${!canRetreat ? 'disabled' : ''}>🏃 撤退</button>
+      `;
+    } else {
+      btnPanel.innerHTML = '<span style="color:#aaa;">AI 思考中...</span>';
+      if (!battle._aiActionTimer) {
+        battle._aiActionTimer = setTimeout(() => aiChooseAction(), 700);
+      }
+    }
+    return;
+  }
 
   // ===== 阵型选择阶段 =====
   if (battle.phase === 'formation') {
@@ -2927,9 +3219,10 @@ function renderBattle() {
 
     document.getElementById('battle-phase-hint').textContent = '🎯 双方选择阵型（同时盲选）';
 
-    // 渲染阵型选择按钮
+    // 渲染阵型选择按钮（双方盲选，检查玩家是否参与战斗而非是否主动方）
     const btnPanel = document.getElementById('battle-actions');
-    if (isPlayerActive()) {
+    const playerInBattle = battle.attackerId === gameState.factionId || battle.defenderId === gameState.factionId;
+    if (playerInBattle && battle.aiFormation) {
       btnPanel.innerHTML = FORMATIONS.map((f, i) => `
         <div class="formation-card" onclick="selectPlayerFormation(${i})">
           <div class="form-icon">${f.icon}</div>
@@ -2939,8 +3232,10 @@ function renderBattle() {
           <div class="form-counter countered" style="font-size:9px;">被 ${FORMATIONS.find(fo => fo.id === f.counteredBy).icon}${FORMATIONS.find(fo => fo.id === f.counteredBy).name} 克</div>
         </div>
       `).join('');
-    } else {
+    } else if (playerInBattle && !battle.aiFormation) {
       btnPanel.innerHTML = '<span style="color:#aaa;">AI 正在选择阵型...</span>';
+    } else {
+      btnPanel.innerHTML = '<span style="color:#aaa;">双方布阵中...</span>';
     }
 
     document.getElementById('battle-log-area').innerHTML = battle.log.map(l =>
@@ -2984,7 +3279,8 @@ function renderBattle() {
     if (isPlayerInDuel()) {
       btnPanel.innerHTML = `
         <button class="confirm" onclick="continueDuel()">⚔️ 继续战斗</button>
-        <button class="danger" onclick="retreatFromDuel()">🏃 撤退（损15-25%兵力）</button>
+        <button class="danger" onclick="retreatFromDuel()">🏃 撤退（脱离1v1，仍可继续参战）</button>
+        <button style="background:linear-gradient(180deg,#666,#444);border-color:#888;color:#ccc;" onclick="surrenderInDuel()">🏳️ 投降</button>
       `;
     } else {
       btnPanel.innerHTML = '<span style="color:#aaa;">AI 决斗中...</span>';
@@ -3024,10 +3320,12 @@ function renderBattle() {
     const pct = Math.round(l.troops / Math.max(l.origTroops, 1) * 100);
     const onClick = canClickAttacker ? `onclick="onBattleCardClick('attacker', ${i})"` : '';
     return `
-    <div class="${cls}" ${onClick} id="att-card-${i}">
-      <div class="card-name">⭐ ${l.hero.name} <span style="color:#888;font-size:11px;">战力${l.hero.power}</span></div>
-      <div class="card-info" title="${l.hero.skill.desc}">${l.hero.skill.desc}</div>
-      <div class="card-troops">${l.troops} 人 <span class="bar" style="width:${pct}%;background:${pct>50?'#4caf50':pct>25?'#ff9800':'#f44336'}"></span></div>
+    <div class="${cls}" id="att-card-${i}">
+      <div ${onClick} style="cursor:pointer;">
+        <div class="card-name">⭐ ${l.hero.name} <span style="color:#888;font-size:11px;">战力${l.hero.power}</span></div>
+        <div class="card-info" title="${l.hero.skill.desc}">${l.hero.skill.desc}</div>
+        <div class="card-troops">${l.troops} 人 <span class="bar" style="width:${pct}%;background:${pct>50?'#4caf50':pct>25?'#ff9800':'#f44336'}"></span></div>
+      </div>
       ${l.troops <= 0 ? '<div style="color:#f44336;font-size:11px;">💀 已阵亡</div>' : ''}
       ${battle.retreated.attacker.includes(i) ? '<div style="color:#ffa500;font-size:11px;">🏃 已撤退</div>' : ''}
       ${battle.phase === 'pick_passive' && battle.activeSide === 'attacker' && battle._activePickedIdx === i ? '<div style="color:#ffd700;font-size:11px;">🔒 已出战</div>' : ''}
@@ -3046,10 +3344,12 @@ function renderBattle() {
     const pct = Math.round(l.troops / Math.max(l.origTroops, 1) * 100);
     const onClick = canClickDefender ? `onclick="onBattleCardClick('defender', ${i})"` : '';
     return `
-    <div class="${cls}" ${onClick} id="def-card-${i}">
-      <div class="card-name">⭐ ${l.hero.name} <span style="color:#888;font-size:11px;">战力${l.hero.power}</span></div>
-      <div class="card-info" title="${l.hero.skill.desc}">${l.hero.skill.desc}</div>
-      <div class="card-troops">${l.troops} 人 <span class="bar" style="width:${pct}%;background:${pct>50?'#4caf50':pct>25?'#ff9800':'#f44336'}"></span></div>
+    <div class="${cls}" id="def-card-${i}">
+      <div ${onClick} style="cursor:pointer;">
+        <div class="card-name">⭐ ${l.hero.name} <span style="color:#888;font-size:11px;">战力${l.hero.power}</span></div>
+        <div class="card-info" title="${l.hero.skill.desc}">${l.hero.skill.desc}</div>
+        <div class="card-troops">${l.troops} 人 <span class="bar" style="width:${pct}%;background:${pct>50?'#4caf50':pct>25?'#ff9800':'#f44336'}"></span></div>
+      </div>
       ${l.troops <= 0 ? '<div style="color:#f44336;font-size:11px;">💀 已阵亡</div>' : ''}
       ${battle.retreated.defender.includes(i) ? '<div style="color:#ffa500;font-size:11px;">🏃 已撤退</div>' : ''}
       ${battle.phase === 'pick_passive' && battle.activeSide === 'defender' && battle._activePickedIdx === i ? '<div style="color:#ffd700;font-size:11px;">🔒 已出战</div>' : ''}
@@ -3084,7 +3384,7 @@ function renderBattle() {
       const activePick = battle._activePickedIdx;
       btnHtml += `<button class="confirm" id="btn-confirm-active" onclick="confirmActivePick()" ${activePick === null ? 'disabled' : ''}>✅ 出战</button>`;
       if (activePick !== null) {
-        btnHtml += `<button class="danger" id="btn-retreat-active" onclick="retreatActiveLegion()">🏃 撤退选中武将（战前）</button>`;
+        btnHtml += `<button class="danger" id="btn-retreat-active" onclick="retreatActiveLegion()">🏃 撤出战役（选相邻据点）</button>`;
       }
     } else {
       btnHtml += '<span style="color:#aaa;">AI 选择出战武将...</span>';
@@ -3173,11 +3473,11 @@ function confirmPassivePick() {
   battle.phase = 'formation';
   battle.playerFormation = null;
   battle.aiFormation = null;
-  renderBattle();
 
-  // AI 立即选阵型
+  // AI 立即选阵型（先选再渲染，避免UI卡在等待状态）
   const aiHero = (battle.activeSide === 'attacker' ? battle.attLegions[battle._lastAttIdx] : battle.defLegions[battle._lastDefIdx]).hero;
   battle.aiFormation = aiPickFormation(aiHero);
+  renderBattle();
 }
 
 function confirmBattlePick() {
@@ -3193,14 +3493,13 @@ function confirmBattlePick() {
   battle.phase = 'formation';
   battle.playerFormation = null;
   battle.aiFormation = null;
-  renderBattle();
 
-  // AI 立即选阵型
+  // AI 立即选阵型（先选再渲染）
   if (!isPlayerActive()) {
     const aiHero = (battle.activeSide === 'attacker' ? battle.attLegions[battle._lastAttIdx] : battle.defLegions[battle._lastDefIdx]).hero;
     battle.aiFormation = aiPickFormation(aiHero);
-    // 等玩家也选了就揭示
   }
+  renderBattle();
 }
 
 // 玩家选择阵型
@@ -3241,7 +3540,7 @@ function revealFormations() {
     counterInfo: counterInfo,
     lastAtkDmg: 0,
     lastDefDmg: 0,
-    isPlayerAttackerDuel: battle.activeSide === 'attacker',
+    isPlayerAttackerDuel: battle.isPlayerAttacker,
   };
 
   battle.phase = 'duel';
@@ -3250,9 +3549,9 @@ function revealFormations() {
 
   renderBattle();
 
-  // 如果双方都是 AI，自动执行
-  if (!isPlayerActive() && battle.isPlayerAttacker === (battle.activeSide !== 'attacker')) {
-    // AI vs AI: 快速自动执行
+  // 如果双方都是 AI，自动执行决斗
+  const playerNotInBattle = battle.attackerId !== gameState.factionId && battle.defenderId !== gameState.factionId;
+  if (playerNotInBattle) {
     setTimeout(() => autoDuel(), 500);
   }
 }
@@ -3310,6 +3609,62 @@ function executeDuelRound() {
 
   battle.log.push({ msg: `⚔️ 第${duel.round}回合：${attName} 造成 ${result.atkDamage} 伤害（余${duel.attTroops}），${defName} 造成 ${result.defDamage} 伤害（余${duel.defTroops}）`, type: 'system' });
 
+  // AI 自动撤退评估（每回合后）
+  if (duel.round >= 2 && duel.attTroops > 0 && duel.defTroops > 0) {
+    const playerSide = battle.isPlayerAttacker ? 'attacker' : 'defender';
+    const aiSide = playerSide === 'attacker' ? 'defender' : 'attacker';
+    const aiIdx = aiSide === 'attacker' ? duel.attIdx : duel.defIdx;
+    const aiTroops = aiSide === 'attacker' ? duel.attTroops : duel.defTroops;
+    const aiOrigTroops = aiSide === 'attacker' ? duel.attOrigTroops : duel.defOrigTroops;
+    const playerTroops = aiSide === 'attacker' ? duel.defTroops : duel.attTroops;
+    const playerOrigTroops = aiSide === 'attacker' ? duel.defOrigTroops : duel.attOrigTroops;
+    const aiPct = aiTroops / Math.max(aiOrigTroops, 1);
+    const playerPct = playerTroops / Math.max(playerOrigTroops, 1);
+
+    // AI撤退条件：兵力不足且差距明显
+    if (aiPct < 0.35 && playerPct - aiPct > 0.20 && Math.random() < 0.65) {
+      const aiFromLoc = aiSide === 'attacker' ? battle.fromLocId : battle.toLocId;
+      const aiFactionId = aiSide === 'attacker' ? battle.attackerId : battle.defenderId;
+      const aiLegion = aiSide === 'attacker' ? battle.attLegions[aiIdx] : battle.defLegions[aiIdx];
+      const retreatOptions = getRetreatDestinations(aiFromLoc, aiFactionId);
+
+      if (retreatOptions.length > 0) {
+        // AI撤退（损失兵力，脱离1v1但不离开战役）
+        const lossPct = 0.15 + Math.random() * 0.10;
+        const loss = Math.max(1, Math.floor(aiLegion.troops * lossPct));
+        aiLegion.troops -= loss;
+        if (aiLegion.troops < 0) aiLegion.troops = 0;
+
+        battle.log.push({ msg: `🦊 ${aiLegion.hero.name} 不敌，从单挑中撤退！损失 ${loss} 人`, type: 'system' });
+        if (aiLegion.troops <= 0) {
+          battle.retreated[aiSide].push(aiIdx);
+          battle.retreatDest[`${aiSide}_${aiIdx}`] = null;
+          battle.log.push({ msg: `💀 ${aiLegion.hero.name} 伤势过重身亡！`, type: 'lose' });
+        }
+        endCurrentDuel(playerSide === 'attacker' ? 'attacker' : 'defender');
+        return;
+      } else if (Math.random() < 0.40) {
+        // 无路可退 → 概率叛变投降玩家
+        const lossPct = 0.10 + Math.random() * 0.10;
+        const loss = Math.max(1, Math.floor(aiLegion.troops * lossPct));
+        aiLegion.troops -= loss;
+        if (aiLegion.troops < 0) aiLegion.troops = 0;
+
+        if (!battle.surrendered) battle.surrendered = { attacker: [], defender: [] };
+        battle.surrendered[aiSide].push(aiIdx);
+        const playerFaction = FACTIONS.find(f => f.id === gameState.factionId);
+        battle.log.push({ msg: `🏳️ ${aiLegion.hero.name} 走投无路，叛变投降${playerFaction.name}！损失 ${loss} 人`, type: 'system' });
+        if (aiLegion.troops <= 0) {
+          battle.retreated[aiSide].push(aiIdx);
+          battle.retreatDest[`${aiSide}_${aiIdx}`] = null;
+          battle.log.push({ msg: `💀 ${aiLegion.hero.name} 伤势过重身亡，叛变未遂！`, type: 'lose' });
+        }
+        endCurrentDuel(playerSide === 'attacker' ? 'attacker' : 'defender');
+        return;
+      }
+    }
+  }
+
   // 检查是否分出胜负
   if (duel.attTroops <= 0 && duel.defTroops <= 0) {
     battle.log.push({ msg: `💀 ${attName} 与 ${defName} 同归于尽！`, type: 'lose' });
@@ -3336,10 +3691,10 @@ function executeDuelRound() {
   }
 }
 
-// 判断当前单挑中玩家是否参与（战斗界面中玩家始终参与）
+// 判断当前单挑中玩家是否参与
 function isPlayerInDuel() {
   if (!battle || !battle.currentDuel) return false;
-  return true; // 玩家始终控制自己的武将（攻方或守方）
+  return battle.attackerId === gameState.factionId || battle.defenderId === gameState.factionId;
 }
 
 // 玩家继续单挑
@@ -3349,8 +3704,11 @@ function continueDuel() {
 }
 
 // 玩家撤退（从单挑中）
+// 战斗中撤退（1v1中脱离，损失兵力但留在战役中）
 function retreatFromDuel() {
   if (!battle || battle.phase !== 'duel' || !battle.currentDuel) return;
+
+  if (!confirm('确定撤退吗？（损失15-25%兵力，退出本回合单挑但仍可继续参战）')) return;
 
   const duel = battle.currentDuel;
   const isPlayerAttacker = duel.isPlayerAttackerDuel;
@@ -3359,28 +3717,167 @@ function retreatFromDuel() {
   const side = isPlayerAttacker ? 'attacker' : 'defender';
   const idx = isPlayerAttacker ? duel.attIdx : duel.defIdx;
   const legion = isPlayerAttacker ? battle.attLegions[idx] : battle.defLegions[idx];
-  const factionId = isPlayerAttacker ? battle.attackerId : battle.defenderId;
-  const fromLocId = isPlayerAttacker ? battle.fromLocId : battle.toLocId;
 
-  // 撤退损失
+  // 撤退损失（仅损失兵力，不离开战役）
   const lossPct = 0.15 + Math.random() * 0.10;
   const loss = Math.max(1, Math.floor(legion.troops * lossPct));
   legion.troops -= loss;
   if (legion.troops < 0) legion.troops = 0;
 
-  // 选择撤退目的地
-  const destLocId = selectRetreatDestination(fromLocId, factionId, legion.hero.name, true);
-  if (destLocId) {
-    battle.retreatDest[`${side}_${idx}`] = destLocId;
-    const destName = LOCATIONS.find(l => l.id === destLocId).name;
-    battle.log.push({ msg: `🏃 ${legion.hero.name} 从单挑中撤退至 ${destName}！损失 ${loss} 人`, type: 'system' });
-  } else {
+  battle.log.push({ msg: `🏃 ${legion.hero.name} 从单挑中撤退！损失 ${loss} 人（${Math.round(lossPct*100)}%），${legion.troops > 0 ? '可继续参战' : '不幸阵亡'}`, type: 'system' });
+
+  // 如果撤退后兵力归零，标记为阵亡
+  if (legion.troops <= 0) {
+    battle.retreated[side].push(idx);
     battle.retreatDest[`${side}_${idx}`] = null;
-    battle.log.push({ msg: `💀 ${legion.hero.name} 无处可退，力战而亡！`, type: 'lose' });
-    legion.troops = 0;
+    battle.log.push({ msg: `💀 ${legion.hero.name} 伤势过重身亡！`, type: 'lose' });
   }
 
-  battle.retreated[side].push(idx);
+  // 本场1v1敌方获胜
+  endCurrentDuel(isPlayerAttacker ? 'defender' : 'attacker');
+}
+
+// 战前撤退（选将阶段，撤出本场战役到相邻据点）
+function retreatFromPickPhase(legionIdx) {
+  const isPickPhase = battle.phase === 'pick' || battle.phase === 'pick_active' || battle.phase === 'pick_passive';
+  if (!battle || !isPickPhase) return;
+
+  // 确定要撤退的武将在哪一侧
+  const playerSide = battle.isPlayerAttacker ? 'attacker' : 'defender';
+  const legions = playerSide === 'attacker' ? battle.attLegions : battle.defLegions;
+  const retreated = playerSide === 'attacker' ? battle.retreated.attacker : battle.retreated.defender;
+  const fromLocId = playerSide === 'attacker' ? battle.fromLocId : battle.toLocId;
+  const factionId = playerSide === 'attacker' ? battle.attackerId : battle.defenderId;
+  const l = legions[legionIdx];
+  if (!l || l.troops <= 0 || retreated.includes(legionIdx)) return;
+
+  // 获取可撤退目的地
+  const options = getRetreatDestinations(fromLocId, factionId);
+  if (options.length === 0) {
+    addLog(`⚠️ ${l.hero.name} 没有可撤退的相邻据点！`, 'bad');
+    return;
+  }
+
+  // 显示撤退目的地选择弹窗
+  showRetreatDestPopup(legionIdx, l, playerSide, fromLocId, factionId, options);
+}
+
+// 撤退目的地选择弹窗
+let pendingRetreatPick = null;
+
+function showRetreatDestPopup(legionIdx, legion, side, fromLocId, factionId, options) {
+  pendingRetreatPick = { legionIdx, legion, side, fromLocId, factionId, options };
+
+  let html = '<div style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);z-index:250;display:flex;align-items:center;justify-content:center;">';
+  html += '<div style="background:linear-gradient(180deg,#2d1f0e,#1a0f05);border:3px solid #8b6914;border-radius:12px;padding:24px;max-width:420px;width:90%;">';
+  html += `<h2 style="color:#ffd700;margin-bottom:8px;">🏃 ${legion.hero.name} 撤退</h2>`;
+  html += `<p style="color:#aaa;font-size:13px;margin-bottom:16px;">选择撤退目的地（损失30%兵力，武将撤出本场战役）：</p>`;
+
+  options.forEach((o, i) => {
+    const icon = o.type === 'friendly' ? '🟢' : '⚪';
+    html += `<button onclick="confirmRetreatPick(${i})" style="width:100%;text-align:left;margin-bottom:6px;padding:10px 14px;background:linear-gradient(180deg,#3a2005,#2a1000);border:2px solid #8b6914;border-radius:6px;color:#ffd700;cursor:pointer;font-size:14px;">
+      ${icon} ${o.name} <span style="color:#888;font-size:12px;">${o.type === 'friendly' ? '己方据点' : '无主据点'}</span>
+    </button>`;
+  });
+
+  html += `<button onclick="cancelRetreatPick()" style="width:100%;margin-top:8px;padding:10px;background:linear-gradient(180deg,#555,#333);border:2px solid #888;border-radius:6px;color:#ccc;cursor:pointer;">✖ 放弃撤退（武将阵亡）</button>`;
+  html += '</div></div>';
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+function confirmRetreatPick(optIdx) {
+  if (!pendingRetreatPick || !battle) return;
+  const { legionIdx, legion, side, options } = pendingRetreatPick;
+  const destLocId = options[optIdx].locationId;
+
+  // 关闭弹窗
+  document.querySelectorAll('div[style*="z-index:250"]').forEach(el => el.remove());
+
+  // 撤退损失
+  const loss = Math.max(1, Math.floor(legion.troops * 0.30));
+  legion.troops -= loss;
+  if (legion.troops < 0) legion.troops = 0;
+
+  const retreated = side === 'attacker' ? battle.retreated.attacker : battle.retreated.defender;
+  retreated.push(legionIdx);
+  battle.retreatDest[`${side}_${legionIdx}`] = destLocId;
+
+  const destName = LOCATIONS.find(l => l.id === destLocId).name;
+  battle.log.push({ msg: `🏃 ${legion.hero.name} 撤出战役，退至 ${destName}！损失 ${loss} 人`, type: 'system' });
+
+  pendingRetreatPick = null;
+
+  // 检查胜负
+  const attAlive = battle.attLegions.some((l, i) => l.troops > 0 && !battle.retreated.attacker.includes(i));
+  const defAlive = battle.defLegions.some((l, i) => l.troops > 0 && !battle.retreated.defender.includes(i));
+  if (!attAlive) { endBattle('defender'); return; }
+  if (!defAlive) { endBattle('attacker'); return; }
+
+  renderBattle();
+}
+
+function cancelRetreatPick() {
+  if (!pendingRetreatPick || !battle) return;
+  const { legionIdx, legion, side } = pendingRetreatPick;
+
+  // 关闭弹窗
+  document.querySelectorAll('div[style*="z-index:250"]').forEach(el => el.remove());
+
+  // 放弃撤退 → 武将阵亡
+  legion.troops = 0;
+  const retreated = side === 'attacker' ? battle.retreated.attacker : battle.retreated.defender;
+  retreated.push(legionIdx);
+  battle.retreatDest[`${side}_${legionIdx}`] = null;
+  battle.log.push({ msg: `💀 ${legion.hero.name} 放弃撤退，力战而亡！`, type: 'lose' });
+
+  pendingRetreatPick = null;
+
+  // 检查胜负
+  const attAlive = battle.attLegions.some((l, i) => l.troops > 0 && !battle.retreated.attacker.includes(i));
+  const defAlive = battle.defLegions.some((l, i) => l.troops > 0 && !battle.retreated.defender.includes(i));
+  if (!attAlive) { endBattle('defender'); return; }
+  if (!defAlive) { endBattle('attacker'); return; }
+
+  renderBattle();
+}
+
+// 投降（武将叛变投靠敌方阵营）
+function surrenderInDuel() {
+  if (!battle || battle.phase !== 'duel' || !battle.currentDuel) return;
+
+  const duel = battle.currentDuel;
+  const isPlayerAttacker = duel.isPlayerAttackerDuel;
+  const side = isPlayerAttacker ? 'attacker' : 'defender';
+  const idx = isPlayerAttacker ? duel.attIdx : duel.defIdx;
+  const legion = isPlayerAttacker ? battle.attLegions[idx] : battle.defLegions[idx];
+  const enemyFaction = isPlayerAttacker ? battle.defFaction : battle.attFaction;
+  const enemyFactionId = isPlayerAttacker ? battle.defenderId : battle.attackerId;
+
+  if (!enemyFactionId) {
+    addLog('⚠️ 对方没有阵营，无法投降！', 'bad');
+    return;
+  }
+
+  if (!confirm(`确定让 ${legion.hero.name} 投降${enemyFaction ? enemyFaction.name : '对方'}吗？\n\n⚠️ 武将将叛变投靠敌方阵营！`)) return;
+
+  // 标记叛变（在 endBattle 中处理阵营转移）
+  if (!battle.surrendered) battle.surrendered = { attacker: [], defender: [] };
+  battle.surrendered[side].push(idx);
+
+  // 损失兵力
+  const loss = Math.max(1, Math.floor(legion.troops * 0.15));
+  legion.troops -= loss;
+  if (legion.troops < 0) legion.troops = 0;
+
+  const enemyName = enemyFaction ? enemyFaction.name : '中立军';
+  battle.log.push({ msg: `🏳️ ${legion.hero.name} 叛变投降了${enemyName}！损失 ${loss} 人`, type: 'system' });
+
+  if (legion.troops <= 0) {
+    battle.retreated[side].push(idx);
+    battle.retreatDest[`${side}_${idx}`] = null;
+    battle.log.push({ msg: `💀 ${legion.hero.name} 伤势过重身亡，叛变未遂！`, type: 'lose' });
+  }
+
   endCurrentDuel(isPlayerAttacker ? 'defender' : 'attacker');
 }
 
@@ -3573,21 +4070,144 @@ function resolveRound() {
   }
 }
 
+// ===== 行动选择 =====
+function chooseActionFight() {
+  if (!battle || battle.phase !== 'action_choice' || !isPlayerActive()) return;
+  if (battle._aiActionTimer) { clearTimeout(battle._aiActionTimer); battle._aiActionTimer = null; }
+  battle.phase = 'pick_active';
+  battle._activePickedIdx = null;
+  renderBattle();
+}
+
+function chooseActionRetreat() {
+  if (!battle || battle.phase !== 'action_choice' || !isPlayerActive()) return;
+  if (battle._aiActionTimer) { clearTimeout(battle._aiActionTimer); battle._aiActionTimer = null; }
+  // 显示撤退武将选择界面
+  showRetreatHeroSelect();
+}
+
+function aiChooseAction() {
+  if (!battle || battle.phase !== 'action_choice' || isPlayerActive()) return;
+  battle._aiActionTimer = null;
+
+  const myLegions = getActiveLegions();
+  const myRetreated = getActiveRetreated();
+  const alive = myLegions.filter((l, i) => l.troops > 0 && !myRetreated.includes(i));
+
+  if (alive.length === 0) {
+    // 全部无法行动 → 只能撤退
+    aiDoRetreat();
+    return;
+  }
+
+  // AI决策：80%出战，20%撤退（劣势时撤退概率更高）
+  const playerSide = battle.isPlayerAttacker ? 'attacker' : 'defender';
+  const enemySide = playerSide === 'attacker' ? 'defender' : 'attacker';
+  const enemyLegions = enemySide === 'attacker' ? battle.attLegions : battle.defLegions;
+  const enemyRetreated = enemySide === 'attacker' ? battle.retreated.attacker : battle.retreated.defender;
+  const enemyAlive = enemyLegions.filter((l, i) => l.troops > 0 && !enemyRetreated.includes(i));
+
+  if (enemyAlive.length === 0) {
+    aiDoRetreat(); // 敌方全灭，撤退收尾
+    return;
+  }
+
+  // 评估战力
+  const myPower = alive.reduce((s, l) => s + l.troops * (1 + l.hero.power / 200), 0);
+  const enemyPower = enemyAlive.reduce((s, l) => s + l.troops * (1 + l.hero.power / 200), 0);
+  const retreatChance = myPower < enemyPower * 0.5 ? 0.5 : (myPower < enemyPower ? 0.25 : 0.10);
+
+  if (Math.random() < retreatChance) {
+    aiDoRetreat();
+  } else {
+    // AI出战
+    battle.phase = 'pick_active';
+    battle._activePickedIdx = null;
+    renderBattle();
+    setTimeout(() => aiPickActive(), 600);
+  }
+}
+
+function aiDoRetreat() {
+  if (!battle) return;
+  const myLegions = getActiveLegions();
+  const myRetreated = getActiveRetreated();
+  const aliveIdxs = myLegions.map((l, i) => ({ l, i })).filter(x => x.l.troops > 0 && !myRetreated.includes(x.i)).map(x => x.i);
+
+  if (aliveIdxs.length === 0) {
+    // 全部不能撤 → 继续出战
+    battle.phase = 'pick_active';
+    battle._activePickedIdx = null;
+    renderBattle();
+    setTimeout(() => aiPickActive(), 600);
+    return;
+  }
+
+  // AI自动选择撤退目的地
+  const aiSide = battle.activeSide;
+  const fromLocId = aiSide === 'attacker' ? battle.fromLocId : battle.toLocId;
+  const factionId = aiSide === 'attacker' ? battle.attackerId : battle.defenderId;
+  const options = getRetreatDestinations(fromLocId, factionId);
+
+  if (options.length === 0) {
+    // 无路可退，只能出战
+    battle.phase = 'pick_active';
+    battle._activePickedIdx = null;
+    renderBattle();
+    setTimeout(() => aiPickActive(), 600);
+    return;
+  }
+
+  const destLocId = options[0].locationId; // AI选第一个可退据点
+
+  // 撤退所有存活武将
+  aliveIdxs.forEach(idx => {
+    const legion = myLegions[idx];
+    const loss = Math.max(1, Math.floor(legion.troops * 0.30));
+    legion.troops = Math.max(1, legion.troops - loss); // 至少保留1兵
+    getActiveRetreated().push(idx);
+    battle.retreatDest[`${aiSide}_${idx}`] = destLocId;
+    // 如果撤退到无主据点，立即占领
+    if (!gameState.locations[destLocId].owner) {
+      gameState.locations[destLocId].owner = factionId;
+    }
+    const destName = LOCATIONS.find(loc => loc.id === destLocId).name;
+    battle.log.push({ msg: `🏃 ${legion.hero.name} 撤出战役至 ${destName}！（损失${loss}人）`, type: 'system' });
+  });
+
+  // 检查胜负
+  const attAlive = battle.attLegions.some((l, i) => l.troops > 0 && !battle.retreated.attacker.includes(i));
+  const defAlive = battle.defLegions.some((l, i) => l.troops > 0 && !battle.retreated.defender.includes(i));
+  if (!attAlive) { endBattle('defender'); return; }
+  if (!defAlive) { endBattle('attacker'); return; }
+
+  // 切换行动方
+  battle.activeSide = (battle.activeSide === 'attacker') ? 'defender' : 'attacker';
+  battle.phase = 'action_choice';
+  battle._activePickedIdx = null;
+  battle._aiActionTimer = null;
+  renderBattle();
+  if (!isPlayerActive()) {
+    battle._aiActionTimer = setTimeout(() => aiChooseAction(), 700);
+  }
+}
+
 function continueAfterResult() {
   if (!battle || battle.phase !== 'combat_result') return;
   if (battleResultTimer) { clearTimeout(battleResultTimer); battleResultTimer = null; }
 
   clearSelections();
-  // 切换主动方
+  // 切换主动方（防守方变为主动方）
   battle.activeSide = (battle.activeSide === 'attacker') ? 'defender' : 'attacker';
   battle.round++;
   battle.lastResult = null;
   battle._activePickedIdx = null;
-  battle.phase = 'pick_active';
+  battle._aiActionTimer = null;
+  battle.phase = 'action_choice';
   renderBattle();
 
   if (!isPlayerActive()) {
-    setTimeout(() => aiPickActive(), 600);
+    battle._aiActionTimer = setTimeout(() => aiChooseAction(), 700);
   }
 }
 
@@ -3642,95 +4262,21 @@ function retreatAfterCombat() {
 }
 
 // 战前撤退（主动方在 pick 阶段撤退自己的武将）
-function retreatInPickPhase() {
-  const isPickPhase = battle.phase === 'pick' || battle.phase === 'pick_active' || battle.phase === 'pick_passive';
-  if (!battle || !isPickPhase || !isPlayerActive()) return;
-  const mySel = getMySelection();
-  if (mySel === null) return;
-
-  const legions = getActiveLegions();
-  const l = legions[mySel];
-
-  // 选择撤退目的地
-  const fromLocId = battle.activeSide === 'attacker' ? battle.fromLocId : battle.toLocId;
-  const factionId = battle.activeSide === 'attacker' ? battle.attackerId : battle.defenderId;
-  const destLocId = selectRetreatDestination(fromLocId, factionId, l.hero.name, true);
-
-  if (destLocId === null) {
-    // 无处可退或放弃撤退 → 武将阵亡
-    l.troops = 0;
-    getActiveRetreated().push(mySel);
-    battle.retreatDest[`${battle.activeSide}_${mySel}`] = null;
-    battle.log.push({ msg: `💀 ${l.hero.name} 无处可退，力战而亡！`, type: 'lose' });
-  } else {
-    const lossPct = Math.random() * 0.30;
-    const loss = Math.max(1, Math.floor(l.troops * lossPct));
-    l.troops -= loss;
-    getActiveRetreated().push(mySel);
-    battle.retreatDest[`${battle.activeSide}_${mySel}`] = destLocId;
-    const destName = LOCATIONS.find(loc => loc.id === destLocId).name;
-    battle.log.push({ msg: `🏃 ${l.hero.name} 战前撤退至 ${destName}！损失 ${loss} 人（${Math.round(lossPct*100)}%）`, type: 'system' });
-  }
-  clearSelections();
-
-  // 检查胜负
-  const attAlive = battle.attLegions.some((l, i) => l.troops > 0 && !battle.retreated.attacker.includes(i));
-  const defAlive = battle.defLegions.some((l, i) => l.troops > 0 && !battle.retreated.defender.includes(i));
-  if (!attAlive) { endBattle('defender'); return; }
-  if (!defAlive) { endBattle('attacker'); return; }
-
-  renderBattle();
-}
-
-// pick_active 阶段撤退已选武将
+// pick_active 阶段撤退已选武将（使用新弹窗）
 function retreatActiveLegion() {
   if (!battle || battle.phase !== 'pick_active' || !isPlayerActive()) return;
   if (battle._activePickedIdx === null) return;
-
-  const legions = getActiveLegions();
-  const l = legions[battle._activePickedIdx];
-  if (!l || l.troops <= 0) return;
-
-  const fromLocId = battle.activeSide === 'attacker' ? battle.fromLocId : battle.toLocId;
-  const factionId = battle.activeSide === 'attacker' ? battle.attackerId : battle.defenderId;
-  const destLocId = selectRetreatDestination(fromLocId, factionId, l.hero.name, true);
-
-  if (destLocId === null) {
-    l.troops = 0;
-    getActiveRetreated().push(battle._activePickedIdx);
-    battle.retreatDest[`${battle.activeSide}_${battle._activePickedIdx}`] = null;
-    battle.log.push({ msg: `💀 ${l.hero.name} 无处可退，力战而亡！`, type: 'lose' });
-  } else {
-    const lossPct = Math.random() * 0.30;
-    const loss = Math.max(1, Math.floor(l.troops * lossPct));
-    l.troops -= loss;
-    getActiveRetreated().push(battle._activePickedIdx);
-    battle.retreatDest[`${battle.activeSide}_${battle._activePickedIdx}`] = destLocId;
-    const destName = LOCATIONS.find(loc => loc.id === destLocId).name;
-    battle.log.push({ msg: `🏃 ${l.hero.name} 战前撤退至 ${destName}！损失 ${loss} 人`, type: 'system' });
-  }
-
-  battle._activePickedIdx = null;
-
-  // 检查胜负
-  const attAlive = battle.attLegions.some((l, i) => l.troops > 0 && !battle.retreated.attacker.includes(i));
-  const defAlive = battle.defLegions.some((l, i) => l.troops > 0 && !battle.retreated.defender.includes(i));
-  if (!attAlive) { endBattle('defender'); return; }
-  if (!defAlive) { endBattle('attacker'); return; }
-
-  if (!isPlayerActive()) {
-    setTimeout(() => aiPickActive(), 600);
-  }
-  renderBattle();
+  retreatFromPickPhase(battle._activePickedIdx);
 }
 
-// 统一的撤退按钮处理（仅用于 pick 阶段战前撤退，duel 阶段用 retreatFromDuel）
+// 统一的撤退按钮处理（底部栏按钮，选将阶段使用新弹窗）
 function retreatSelectedLegion() {
   if (!battle) return;
-  if (battle.phase === 'pick' || battle.phase === 'pick_active' || battle.phase === 'pick_passive') {
-    retreatInPickPhase();
-  }
-  // combat_result 和 duel 阶段的撤退由各自的按钮处理
+  const isPickPhase = battle.phase === 'pick' || battle.phase === 'pick_active' || battle.phase === 'pick_passive';
+  if (!isPickPhase || !isPlayerActive()) return;
+  const mySel = getMySelection();
+  if (mySel === null) return;
+  retreatFromPickPhase(mySel);
 }
 
 // ===== AI 系统（战斗内）=====
@@ -3896,7 +4442,6 @@ function aiPickPassive() {
   battle.phase = 'formation';
   battle.playerFormation = null;
   battle.aiFormation = null;
-  renderBattle();
 
   // 检查是否玩家参战（AI vs AI 不需要等待玩家选阵型）
   const isPlayerInvolved = battle.attackerId === gameState.factionId || battle.defenderId === gameState.factionId;
@@ -3906,16 +4451,153 @@ function aiPickPassive() {
     const enemyHero = (battle.activeSide === 'attacker' ? battle.defLegions[battle._lastDefIdx] : battle.attLegions[battle._lastAttIdx]).hero;
     battle.aiFormation = aiPickFormation(aiHero);
     battle.playerFormation = aiPickFormation(enemyHero);
+    renderBattle();
     setTimeout(() => { revealFormations(); autoDuel(); }, 400);
   } else {
     // AI（被动方）先选阵型，等玩家（主动方）也选了就揭示
-    // AI 是 passive 方，hero 取 passive 侧的 _lastDefIdx(active=attacker时) 或 _lastAttIdx(active=defender时)
     const aiHero = (battle.activeSide === 'attacker' ? battle.defLegions[battle._lastDefIdx] : battle.attLegions[battle._lastAttIdx]).hero;
     battle.aiFormation = aiPickFormation(aiHero);
+    renderBattle();
   }
 }
 
 // 旧版 aiPickBoth 保留以供兼容（AI vs AI 的旧路径不再使用）
+
+// ===== 战前撤退（多选武将 + 地图选目的地）=====
+let pendingBattleRetreat = null; // { selectedIndices: Set }
+
+function showRetreatHeroSelect() {
+  if (!battle || battle.phase !== 'action_choice') return;
+
+  const myLegions = getActiveLegions();
+  const myRetreated = getActiveRetreated();
+  const alive = myLegions.map((l, i) => ({ l, i })).filter(x => x.l.troops > 0 && !myRetreated.includes(x.i));
+
+  if (alive.length === 0) {
+    addLog('⚠️ 没有可撤退的武将！', 'bad');
+    return;
+  }
+
+  pendingBattleRetreat = { selectedIndices: new Set(alive.map(x => x.i)) };
+
+  const btnPanel = document.getElementById('battle-actions');
+  let html = '<div style="font-size:14px;color:#ffa500;margin-bottom:8px;">🏃 选择要撤退的武将（可多选）：</div>';
+  alive.forEach(({ l, i }) => {
+    const checked = pendingBattleRetreat.selectedIndices.has(i) ? 'checked' : '';
+    html += `<label style="display:block;padding:8px 10px;margin-bottom:4px;background:rgba(0,0,0,0.3);border-radius:4px;cursor:pointer;font-size:13px;">
+      <input type="checkbox" ${checked} onchange="toggleBattleRetreatHero(${i})" style="margin-right:8px;">
+      ⭐${l.hero.name} <span style="color:#888;">战力${l.hero.power}</span> — ${l.troops} 人
+      <span style="color:#f44336;font-size:11px;">（撤退损失30%兵力）</span>
+    </label>`;
+  });
+  html += `
+    <button onclick="confirmRetreatHeroSelect()" ${pendingBattleRetreat.selectedIndices.size === 0 ? 'disabled' : ''} style="width:100%;background:linear-gradient(180deg,#8b0000,#5a0000);border-color:#ff4444;margin-top:8px;">✅ 确认撤退（${pendingBattleRetreat.selectedIndices.size}将）→ 选择目的地</button>
+    <button onclick="cancelRetreatHeroSelect()" style="width:100%;background:linear-gradient(180deg,#555,#333);border-color:#888;margin-top:4px;">✖ 取消</button>
+  `;
+  btnPanel.innerHTML = html;
+  document.getElementById('battle-phase-hint').textContent = '🏃 选择要撤出战役的武将';
+}
+
+function toggleBattleRetreatHero(idx) {
+  if (!pendingBattleRetreat) return;
+  const sel = pendingBattleRetreat.selectedIndices;
+  if (sel.has(idx)) sel.delete(idx); else sel.add(idx);
+  showRetreatHeroSelect(); // 刷新UI
+}
+
+function confirmRetreatHeroSelect() {
+  if (!pendingBattleRetreat || !battle) return;
+  const { selectedIndices } = pendingBattleRetreat;
+  if (selectedIndices.size === 0) return;
+
+  // 保存选中的武将索引
+  pendingBattleRetreat.selectedIndices = selectedIndices;
+
+  // 隐藏战斗界面，切换到地图模式
+  document.getElementById('battle-overlay').classList.remove('active');
+  document.getElementById('battle-phase-hint').textContent = '';
+  document.getElementById('battle-actions').innerHTML = '<span style="color:#ffa500;">请在地图上点击相邻据点选择撤退目的地</span>';
+
+  // 高亮可选目的地
+  const activeSide = battle.activeSide;
+  const fromLocId = activeSide === 'attacker' ? battle.fromLocId : battle.toLocId;
+  const factionId = activeSide === 'attacker' ? battle.attackerId : battle.defenderId;
+  const options = getRetreatDestinations(fromLocId, factionId);
+
+  pendingBattleRetreat.options = options;
+  pendingBattleRetreat.fromLocId = fromLocId;
+  pendingBattleRetreat.factionId = factionId;
+
+  renderMap(); // 刷新地图
+  addLog('🗺️ 请在地图上点击相邻据点选择撤退目的地', 'info');
+}
+
+function cancelRetreatHeroSelect() {
+  pendingBattleRetreat = null;
+  battle.phase = 'action_choice';
+  renderBattle();
+}
+
+// 地图点击处理（撤退模式）
+function handleRetreatMapClick(locId) {
+  if (!pendingBattleRetreat || !battle) return false;
+
+  const { options, selectedIndices } = pendingBattleRetreat;
+  const validDest = options.find(o => o.locationId === locId);
+  if (!validDest) {
+    addLog('⚠️ 请选择一个相邻的己方或中立据点！', 'bad');
+    return true; // 拦截了点击
+  }
+
+  // 执行撤退
+  const destLocId = validDest.locationId;
+  const destName = LOCATIONS.find(l => l.id === destLocId).name;
+  const activeSide = battle.activeSide;
+  const myLegions = getActiveLegions();
+
+  let retreatedCount = 0;
+  selectedIndices.forEach(idx => {
+    const legion = myLegions[idx];
+    if (legion && legion.troops > 0) {
+      const loss = Math.max(1, Math.floor(legion.troops * 0.30));
+      legion.troops = Math.max(1, legion.troops - loss); // 至少保留1兵，防止武将消失
+      getActiveRetreated().push(idx);
+      battle.retreatDest[`${activeSide}_${idx}`] = destLocId;
+      // 如果撤退到无主据点，立即占领
+      if (!gameState.locations[destLocId].owner) {
+        gameState.locations[destLocId].owner = pendingBattleRetreat.factionId;
+      }
+      battle.log.push({ msg: `🏃 ${legion.hero.name} 撤出战役至 ${destName}！（损失${loss}人）`, type: 'system' });
+      retreatedCount++;
+    }
+  });
+
+  if (retreatedCount > 0) {
+    addLog(`🏃 ${retreatedCount}名武将撤至 ${destName}`, 'info');
+  }
+
+  pendingBattleRetreat = null;
+
+  // 检查胜负
+  const attAlive = battle.attLegions.some((l, i) => l.troops > 0 && !battle.retreated.attacker.includes(i));
+  const defAlive = battle.defLegions.some((l, i) => l.troops > 0 && !battle.retreated.defender.includes(i));
+  if (!attAlive) { endBattle('defender'); return true; }
+  if (!defAlive) { endBattle('attacker'); return true; }
+
+  // 切换行动方，恢复战斗界面
+  battle.activeSide = (battle.activeSide === 'attacker') ? 'defender' : 'attacker';
+  battle.phase = 'action_choice';
+  battle._activePickedIdx = null;
+  battle._aiActionTimer = null;
+  document.getElementById('battle-overlay').classList.add('active');
+  renderBattle();
+
+  if (!isPlayerActive()) {
+    battle._aiActionTimer = setTimeout(() => aiChooseAction(), 700);
+  }
+
+  return true; // 拦截了点击
+}
 
 // ===== 全军撤退 =====
 function retreatAllLegions() {
@@ -4108,7 +4790,7 @@ function doAttackWithLegions(fromLocId, toLocId, terrain, selectedIndices) {
   </div>
   <div class="phase-hint" id="battle-phase-hint"></div>
   <div id="battle-actions">
-    <button class="danger" id="btn-retreat-selected" onclick="retreatSelectedLegion()" disabled>🏃 撤退选中武将</button>
+    <button class="danger" id="btn-retreat-selected" onclick="retreatSelectedLegion()" disabled>🏃 战前撤出（选相邻据点）</button>
     <button class="confirm" id="btn-confirm-pick" onclick="confirmBattlePick()" disabled>✅ 确认出战</button>
     <button id="btn-auto-battle" onclick="autoBattle()">⚡ 自动战斗</button>
     <button class="danger" id="btn-retreat-all" onclick="retreatAllLegions()">🚪 全军撤退</button>
