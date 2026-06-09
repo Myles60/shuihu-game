@@ -273,6 +273,10 @@ body {
       <h2>⭐ 我的好汉</h2>
       <div id="my-heroes" style="font-size:12px;color:#aaa;">选择阵营后显示</div>
     </div>
+    <div style="margin-top:8px;">
+      <h2>🔒 大牢 <span id="prison-count" style="font-size:12px;color:#888;"></span></h2>
+      <div id="prison-list" style="font-size:12px;"></div>
+    </div>
     <h2 style="margin-top:8px;">📜 事件日志</h2>
     <div id="event-log">
       <div class="log-entry info">等待游戏开始...</div>
@@ -402,143 +406,180 @@ const CONNECTIONS = [
 // ===== 好汉数据 =====
 const HERO_POOL = [
   // 统帅
-  { id: 'songjiang',   name: '宋江',   type: 'commander',  power: 60, loyalty: 95, skill: { name: '及时雨', desc: '每回合额外获得 1 行动力', type: 'special' } },
-  { id: 'lujunyi',     name: '卢俊义', type: 'commander',  power: 98, loyalty: 85, skill: { name: '无双',   desc: '进攻时战力额外 ×1.1', type: 'attack' } },
-  { id: 'fangla_h',    name: '方腊',   type: 'commander',  power: 82, loyalty: 99, skill: { name: '圣公',   desc: '每回合该据点额外产粮 +20', type: 'special' } },
-  { id: 'chaogai',     name: '晁盖',   type: 'commander',  power: 78, loyalty: 90, skill: { name: '托塔天王', desc: '守城时据点防御系数 +0.2', type: 'defend' } },
+  { id: 'songjiang',   name: '宋江',   type: 'commander',  power: 60, loyalty: 95 },
+  { id: 'lujunyi',     name: '卢俊义', type: 'commander',  power: 98, loyalty: 85 },
+  { id: 'fangla_h',    name: '方腊',   type: 'commander',  power: 82, loyalty: 99 },
+  { id: 'chaogai',     name: '晁盖',   type: 'commander',  power: 78, loyalty: 90 },
   // 武将天罡级
-  { id: 'guansheng',   name: '关胜',   type: 'warrior',    power: 92, loyalty: 80, skill: { name: '武圣',   desc: '进攻大道敌方时战力额外 +15%', type: 'attack' } },
-  { id: 'wusong',      name: '武松',   type: 'warrior',    power: 91, loyalty: 70, skill: { name: '打虎',   desc: '山路进攻不受地形惩罚', type: 'attack' } },
-  { id: 'linchong',    name: '林冲',   type: 'warrior',    power: 90, loyalty: 60, skill: { name: '教头',   desc: '休整时兵力回复 +50%', type: 'special' } },
-  { id: 'huyanzhuo',   name: '呼延灼', type: 'warrior',    power: 89, loyalty: 75, skill: { name: '连环马', desc: '进攻大道时敌方无法使用防御技能', type: 'attack' } },
-  { id: 'luzhishen',   name: '鲁智深', type: 'warrior',    power: 88, loyalty: 65, skill: { name: '金刚',   desc: '守城时自身兵力损耗 -20%', type: 'defend' } },
-  { id: 'qinming',     name: '秦明',   type: 'warrior',    power: 87, loyalty: 70, skill: { name: '霹雳火', desc: '进攻时随机波动范围扩大为 ±25%', type: 'attack' } },
-  { id: 'dongping',    name: '董平',   type: 'warrior',    power: 86, loyalty: 65, skill: { name: '双枪将', desc: '每回合首次进攻后可再进攻一次（0行动力）', type: 'attack' } },
-  { id: 'huarong',     name: '花荣',   type: 'warrior',    power: 86, loyalty: 80, skill: { name: '神射',   desc: '进攻时先手远程伤害，敌方兵力 -5%', type: 'attack' } },
-  { id: 'likui',       name: '李逵',   type: 'warrior',    power: 85, loyalty: 90, skill: { name: '狂暴',   desc: '守城时反击伤害 +30%', type: 'defend' } },
+  { id: 'guansheng',   name: '关胜',   type: 'warrior',    power: 92, loyalty: 80 },
+  { id: 'wusong',      name: '武松',   type: 'warrior',    power: 91, loyalty: 70 },
+  { id: 'linchong',    name: '林冲',   type: 'warrior',    power: 90, loyalty: 60 },
+  { id: 'huyanzhuo',   name: '呼延灼', type: 'warrior',    power: 89, loyalty: 75 },
+  { id: 'luzhishen',   name: '鲁智深', type: 'warrior',    power: 88, loyalty: 65 },
+  { id: 'qinming',     name: '秦明',   type: 'warrior',    power: 87, loyalty: 70 },
+  { id: 'dongping',    name: '董平',   type: 'warrior',    power: 86, loyalty: 65 },
+  { id: 'huarong',     name: '花荣',   type: 'warrior',    power: 86, loyalty: 80 },
+  { id: 'likui',       name: '李逵',   type: 'warrior',    power: 85, loyalty: 90 },
   // 武将地煞级
-  { id: 'zhangqing',   name: '张清',   type: 'warrior',    power: 84, loyalty: 70, skill: { name: '飞石',   desc: '进攻 20% 概率眩晕敌方好汉技能', type: 'attack' } },
-  { id: 'yangzhi',     name: '杨志',   type: 'warrior',    power: 83, loyalty: 60, skill: { name: '青面兽', desc: '守城时敌方情报探查失效', type: 'defend' } },
-  { id: 'xuning',      name: '徐宁',   type: 'warrior',    power: 82, loyalty: 75, skill: { name: '钩镰枪', desc: '对辽国阵营战力 +20%', type: 'attack' } },
-  { id: 'suochao',     name: '索超',   type: 'warrior',    power: 81, loyalty: 55, skill: { name: '急先锋', desc: '进攻大道敌方时先手造成 5% 兵力伤害', type: 'attack' } },
-  { id: 'shijin',      name: '史进',   type: 'warrior',    power: 80, loyalty: 55, skill: { name: '九纹龙', desc: '每控制一个据点额外 +5% 战力', type: 'attack' } },
-  { id: 'lichun',      name: '李俊',   type: 'warrior',    power: 79, loyalty: 50, skill: { name: '混江龙', desc: '水路进攻时不受敌方好汉技能影响', type: 'attack' } },
-  { id: 'ruanxiaoqi',  name: '阮小七', type: 'warrior',    power: 78, loyalty: 45, skill: { name: '活阎罗', desc: '水路进攻时敌方据点防御系数 -0.3', type: 'attack' } },
-  { id: 'zhangshun',   name: '张顺',   type: 'warrior',    power: 77, loyalty: 55, skill: { name: '浪里白条', desc: '水路边战斗力翻倍', type: 'march' } },
-  { id: 'ruanxiaoer',  name: '阮小二', type: 'warrior',    power: 76, loyalty: 50, skill: { name: '立地太岁', desc: '水路边战斗力翻倍', type: 'march' } },
-  { id: 'liutang',     name: '刘唐',   type: 'warrior',    power: 75, loyalty: 65, skill: { name: '赤发鬼', desc: '山路进攻时额外 +10% 战力', type: 'attack' } },
-  { id: 'ruanxiaowu',  name: '阮小五', type: 'warrior',    power: 74, loyalty: 45, skill: { name: '短命二郎', desc: '水路边行军不消耗行动力', type: 'march' } },
-  { id: 'shixiu',      name: '石秀',   type: 'warrior',    power: 73, loyalty: 60, skill: { name: '拼命三郎', desc: '兵力低于 300 时战力 +25%', type: 'attack' } },
-  { id: 'xiebao',      name: '解宝',   type: 'warrior',    power: 68, loyalty: 40, skill: { name: '两头蛇', desc: '山路进攻敌方先损失 3% 兵力', type: 'attack' } },
-  { id: 'xiezhen',     name: '解珍',   type: 'warrior',    power: 68, loyalty: 40, skill: { name: '双尾蝎', desc: '守城时敌方无法探查本据点兵力', type: 'defend' } },
-  { id: 'shien',       name: '施恩',   type: 'warrior',    power: 55, loyalty: 50, skill: { name: '金眼彪', desc: '快活林据点产粮翻倍', type: 'special' } },
+  { id: 'zhangqing',   name: '张清',   type: 'warrior',    power: 84, loyalty: 70 },
+  { id: 'yangzhi',     name: '杨志',   type: 'warrior',    power: 83, loyalty: 60 },
+  { id: 'xuning',      name: '徐宁',   type: 'warrior',    power: 82, loyalty: 75 },
+  { id: 'suochao',     name: '索超',   type: 'warrior',    power: 81, loyalty: 55 },
+  { id: 'shijin',      name: '史进',   type: 'warrior',    power: 80, loyalty: 55 },
+  { id: 'lichun',      name: '李俊',   type: 'warrior',    power: 79, loyalty: 50 },
+  { id: 'ruanxiaoqi',  name: '阮小七', type: 'warrior',    power: 78, loyalty: 45 },
+  { id: 'zhangshun',   name: '张顺',   type: 'warrior',    power: 77, loyalty: 55 },
+  { id: 'ruanxiaoer',  name: '阮小二', type: 'warrior',    power: 76, loyalty: 50 },
+  { id: 'liutang',     name: '刘唐',   type: 'warrior',    power: 75, loyalty: 65 },
+  { id: 'ruanxiaowu',  name: '阮小五', type: 'warrior',    power: 74, loyalty: 45 },
+  { id: 'shixiu',      name: '石秀',   type: 'warrior',    power: 73, loyalty: 60 },
+  { id: 'xiebao',      name: '解宝',   type: 'warrior',    power: 68, loyalty: 40 },
+  { id: 'xiezhen',     name: '解珍',   type: 'warrior',    power: 68, loyalty: 40 },
+  { id: 'shien',       name: '施恩',   type: 'warrior',    power: 55, loyalty: 50 },
   // === 新增武将 ===
-  { id: 'sunli',       name: '孙立',   type: 'warrior',    power: 78, loyalty: 50, skill: { name: '鞭尉',   desc: '单挑每回合10%概率眩晕敌方（跳过一回合反击）', type: 'attack' } },
-  { id: 'zhutong',     name: '朱仝',   type: 'warrior',    power: 76, loyalty: 75, skill: { name: '美髯',   desc: '守城时敌方攻击-8%', type: 'defend' } },
-  { id: 'husanniang',  name: '扈三娘', type: 'warrior',    power: 75, loyalty: 55, skill: { name: '红锦',   desc: '单挑中每回合恢复2%兵力', type: 'special' } },
-  { id: 'liying',      name: '李应',   type: 'warrior',    power: 72, loyalty: 45, skill: { name: '飞刀',   desc: '单挑首回合额外造成10%伤害', type: 'attack' } },
-  { id: 'zhangheng',   name: '张横',   type: 'warrior',    power: 71, loyalty: 50, skill: { name: '船火',   desc: '水路进攻时伤害+15%', type: 'attack' } },
-  { id: 'muhong',      name: '穆弘',   type: 'warrior',    power: 69, loyalty: 55, skill: { name: '豪杰',   desc: '每控制一个中立据点+3%战力', type: 'attack' } },
+  { id: 'sunli',       name: '孙立',   type: 'warrior',    power: 78, loyalty: 50 },
+  { id: 'zhutong',     name: '朱仝',   type: 'warrior',    power: 76, loyalty: 75 },
+  { id: 'husanniang',  name: '扈三娘', type: 'warrior',    power: 75, loyalty: 55 },
+  { id: 'liying',      name: '李应',   type: 'warrior',    power: 72, loyalty: 45 },
+  { id: 'zhangheng',   name: '张横',   type: 'warrior',    power: 71, loyalty: 50 },
+  { id: 'muhong',      name: '穆弘',   type: 'warrior',    power: 69, loyalty: 55 },
   // === 方腊部将 ===
-  { id: 'shibao',      name: '石宝',   type: 'warrior',    power: 85, loyalty: 90, skill: { name: '劈风',   desc: '单挑每回合伤害+12%', type: 'attack' } },
-  { id: 'dengyuanjue', name: '邓元觉', type: 'warrior',    power: 80, loyalty: 85, skill: { name: '宝光',   desc: '守城时免疫阵型克制效果', type: 'defend' } },
-  { id: 'pangwanchun', name: '庞万春', type: 'warrior',    power: 78, loyalty: 80, skill: { name: '连珠',   desc: '进攻时先手造成8%兵力伤害', type: 'attack' } },
+  { id: 'shibao',      name: '石宝',   type: 'warrior',    power: 85, loyalty: 90 },
+  { id: 'dengyuanjue', name: '邓元觉', type: 'warrior',    power: 80, loyalty: 85 },
+  { id: 'pangwanchun', name: '庞万春', type: 'warrior',    power: 78, loyalty: 80 },
   // === 朝廷命官 ===
-  { id: 'wangjin',     name: '王进',   type: 'warrior',    power: 82, loyalty: 60, skill: { name: '教习',   desc: '休整时兵力回复+60%，可训练守军', type: 'special' } },
-  { id: 'zhangkai',    name: '张开',   type: 'warrior',    power: 74, loyalty: 70, skill: { name: '铁壁',   desc: '守城时防御+15%', type: 'defend' } },
+  { id: 'wangjin',     name: '王进',   type: 'warrior',    power: 82, loyalty: 60 },
+  { id: 'zhangkai',    name: '张开',   type: 'warrior',    power: 74, loyalty: 70 },
   // === 梁山地煞 ===
-  { id: 'sunxin',      name: '孙新',   type: 'warrior',    power: 67, loyalty: 50, skill: { name: '小尉迟', desc: '与孙立同驻时双方战力+5', type: 'special' } },
-  { id: 'gudasao',     name: '顾大嫂', type: 'warrior',    power: 66, loyalty: 55, skill: { name: '母大虫', desc: '守城时敌方每回合损1%兵力', type: 'defend' } },
-  { id: 'zourun',      name: '邹润',   type: 'warrior',    power: 64, loyalty: 45, skill: { name: '独角龙', desc: '山路进攻时眩晕概率+10%', type: 'attack' } },
+  { id: 'sunxin',      name: '孙新',   type: 'warrior',    power: 67, loyalty: 50 },
+  { id: 'gudasao',     name: '顾大嫂', type: 'warrior',    power: 66, loyalty: 55 },
+  { id: 'zourun',      name: '邹润',   type: 'warrior',    power: 64, loyalty: 45 },
   // === 朝廷 ===
-  { id: 'yangjian',    name: '杨戬',   type: 'strategist', power: 38, loyalty: 80, skill: { name: '权谋',   desc: '敌方征兵消耗+30%', type: 'special' } },
+  { id: 'yangjian',    name: '杨戬',   type: 'strategist', power: 38, loyalty: 80 },
   // === 方腊 ===
-  { id: 'fangjie',     name: '方杰',   type: 'warrior',    power: 81, loyalty: 90, skill: { name: '方天戟', desc: '单挑中每3回合暴击一次(伤害×1.5)', type: 'attack' } },
+  { id: 'fangjie',     name: '方杰',   type: 'warrior',    power: 81, loyalty: 90 },
   // === 🥚 隐藏彩蛋：四位特别的武将 ===
-  { id: 'jiashihan',   name: '贾诗涵', type: 'strategist', power: 52, loyalty: 99, skill: { name: '诗才',   desc: '巡视时有诗句相伴，额外+15%好汉发现率', type: 'special' }, hidden: true, hintLoc: 'xunyangjiang' },
-  { id: 'zhanghaoyu',  name: '张浩宇', type: 'commander',  power: 72, loyalty: 99, skill: { name: '浩宇',   desc: '胸怀宇宙，统御四方——兵力上限+300', type: 'special' }, hidden: true, hintLoc: 'liangshanbo' },
-  { id: 'zhangyongxu', name: '张永旭', type: 'warrior',    power: 79, loyalty: 99, skill: { name: '永旭',   desc: '旭日东升，士气永存——每回合回复5%兵力', type: 'special' }, hidden: true, hintLoc: 'jingyanggang' },
-  { id: 'masheng',     name: '麻昇',   type: 'warrior',    power: 91, loyalty: 99, skill: { name: '破阵',   desc: '单挑中无视敌方阵型克制效果', type: 'attack' }, hidden: true, hintLoc: 'dongjing' },
+  { id: 'jiashihan',   name: '贾诗涵', type: 'strategist', power: 52, loyalty: 99, hidden: true, hintLoc: 'xunyangjiang' },
+  { id: 'zhanghaoyu',  name: '张浩宇', type: 'commander',  power: 72, loyalty: 99, hidden: true, hintLoc: 'liangshanbo' },
+  { id: 'zhangyongxu', name: '张永旭', type: 'warrior',    power: 79, loyalty: 99, hidden: true, hintLoc: 'jingyanggang' },
+  { id: 'masheng',     name: '麻昇',   type: 'warrior',    power: 91, loyalty: 99, hidden: true, hintLoc: 'dongjing' },
   // 军师
-  { id: 'gongsunsheng',name: '公孙胜', type: 'strategist', power: 50, loyalty: 70, skill: { name: '道法',   desc: '进攻有 20% 概率让敌方好汉技能失效', type: 'attack' } },
-  { id: 'wuyong',      name: '吴用',   type: 'strategist', power: 45, loyalty: 85, skill: { name: '智取',   desc: '进攻前先削弱敌方 10% 兵力', type: 'attack' } },
-  { id: 'zhuwu',       name: '朱武',   type: 'strategist', power: 42, loyalty: 50, skill: { name: '神机',   desc: '巡视时好汉发现概率 +15%', type: 'special' } },
-  { id: 'daizong',     name: '戴宗',   type: 'strategist', power: 38, loyalty: 80, skill: { name: '神行',   desc: '该据点行军至相邻据点不消耗行动力', type: 'march' } },
-  { id: 'chaijin',     name: '柴进',   type: 'strategist', power: 35, loyalty: 55, skill: { name: '小旋风', desc: '好汉招募花费的粮草 -50%', type: 'special' } },
-  { id: 'yanqing',     name: '燕青',   type: 'strategist', power: 65, loyalty: 75, skill: { name: '浪子',   desc: '招降成功率 +25%', type: 'special' } },
+  { id: 'gongsunsheng',name: '公孙胜', type: 'strategist', power: 50, loyalty: 70 },
+  { id: 'wuyong',      name: '吴用',   type: 'strategist', power: 45, loyalty: 85 },
+  { id: 'zhuwu',       name: '朱武',   type: 'strategist', power: 42, loyalty: 50 },
+  { id: 'daizong',     name: '戴宗',   type: 'strategist', power: 38, loyalty: 80 },
+  { id: 'chaijin',     name: '柴进',   type: 'strategist', power: 35, loyalty: 55 },
+  { id: 'yanqing',     name: '燕青',   type: 'strategist', power: 65, loyalty: 75 },
   // === 辽国部将 ===
-  { id: 'wuyanguang',  name: '兀颜光', type: 'commander',  power: 90, loyalty: 95, skill: { name: '统军',   desc: '麾下军团兵力上限+20%', type: 'special' } },
-  { id: 'aliqi',       name: '阿里奇', type: 'warrior',    power: 86, loyalty: 90, skill: { name: '铁骑',   desc: '平原/大道进攻时伤害+15%', type: 'attack' } },
-  { id: 'qiongyao',    name: '琼妖纳延', type: 'warrior',  power: 83, loyalty: 85, skill: { name: '神箭',   desc: '单挑首回合额外造成15%伤害', type: 'attack' } },
-  { id: 'hezhongbao',  name: '贺重宝', type: 'strategist', power: 55, loyalty: 80, skill: { name: '妖术',   desc: '防守时20%概率敌方进攻失败', type: 'defend' } },
-  { id: 'dalibo',      name: '答里孛', type: 'warrior',    power: 72, loyalty: 75, skill: { name: '骁骑',   desc: '进攻时若兵力多于敌方，伤害+15%', type: 'attack' } },
+  { id: 'wuyanguang',  name: '兀颜光', type: 'commander',  power: 90, loyalty: 95 },
+  { id: 'aliqi',       name: '阿里奇', type: 'warrior',    power: 86, loyalty: 90 },
+  { id: 'qiongyao',    name: '琼妖纳延', type: 'warrior',  power: 83, loyalty: 85 },
+  { id: 'hezhongbao',  name: '贺重宝', type: 'strategist', power: 55, loyalty: 80 },
+  { id: 'dalibo',      name: '答里孛', type: 'warrior',    power: 72, loyalty: 75 },
   // === 田虎部将 ===
-  { id: 'bianxiang',   name: '卞祥',   type: 'commander',  power: 84, loyalty: 90, skill: { name: '河北将', desc: '每控制一个据点+10%防守战力', type: 'defend' } },
-  { id: 'sunan',       name: '孙安',   type: 'warrior',    power: 82, loyalty: 85, skill: { name: '双刀',   desc: '单挑中15%概率反击两次', type: 'attack' } },
-  { id: 'qiaoqing',    name: '乔道清', type: 'strategist', power: 58, loyalty: 80, skill: { name: '幻术',   desc: '进攻时15%概率敌方武将眩晕一回合', type: 'attack' } },
-  { id: 'qiongying',   name: '琼英',   type: 'warrior',    power: 74, loyalty: 85, skill: { name: '飞石女', desc: '20%概率眩晕敌方好汉技能', type: 'attack' } },
+  { id: 'bianxiang',   name: '卞祥',   type: 'commander',  power: 84, loyalty: 90 },
+  { id: 'sunan',       name: '孙安',   type: 'warrior',    power: 82, loyalty: 85 },
+  { id: 'qiaoqing',    name: '乔道清', type: 'strategist', power: 58, loyalty: 80 },
+  { id: 'qiongying',   name: '琼英',   type: 'warrior',    power: 74, loyalty: 85 },
   // === 王庆部将 ===
-  { id: 'lizhu',       name: '李助',   type: 'commander',  power: 86, loyalty: 90, skill: { name: '金剑',   desc: '单挑中伤害+20%', type: 'attack' } },
-  { id: 'duxue',       name: '杜壆',   type: 'warrior',    power: 88, loyalty: 88, skill: { name: '淮西将', desc: '兵力每减10%伤害+5%', type: 'attack' } },
-  { id: 'fengtai',     name: '酆泰',   type: 'warrior',    power: 78, loyalty: 70, skill: { name: '莽将',   desc: '进攻时无视20%防御', type: 'attack' } },
-  { id: 'yuanlang',    name: '袁朗',   type: 'warrior',    power: 76, loyalty: 75, skill: { name: '铁枪',   desc: '守城时敌步兵伤害-15%', type: 'defend' } },
+  { id: 'lizhu',       name: '李助',   type: 'commander',  power: 86, loyalty: 90 },
+  { id: 'duxue',       name: '杜壆',   type: 'warrior',    power: 88, loyalty: 88 },
+  { id: 'fengtai',     name: '酆泰',   type: 'warrior',    power: 78, loyalty: 70 },
+  { id: 'yuanlang',    name: '袁朗',   type: 'warrior',    power: 76, loyalty: 75 },
   // === 梁山补充 ===
-  { id: 'yangxiong',   name: '杨雄',   type: 'warrior',    power: 72, loyalty: 60, skill: { name: '病关索', desc: '不受任何地形惩罚', type: 'attack' } },
-  { id: 'leiheng',     name: '雷横',   type: 'warrior',    power: 71, loyalty: 60, skill: { name: '插翅虎', desc: '山路进攻额外+12%战力', type: 'attack' } },
-  { id: 'lvfang',      name: '吕方',   type: 'warrior',    power: 65, loyalty: 70, skill: { name: '小温侯', desc: '与郭盛同驻时双方+10战力', type: 'special' } },
-  { id: 'guosheng',    name: '郭盛',   type: 'warrior',    power: 64, loyalty: 70, skill: { name: '赛仁贵', desc: '与吕方同驻时双方+10战力', type: 'special' } },
-  { id: 'xiangchong',  name: '项充',   type: 'warrior',    power: 62, loyalty: 55, skill: { name: '八臂哪吒', desc: '守城时反击率+20%', type: 'defend' } },
-  { id: 'ligun',       name: '李衮',   type: 'warrior',    power: 61, loyalty: 55, skill: { name: '飞天大圣', desc: '守城时投枪先手伤敌3%', type: 'defend' } },
+  { id: 'yangxiong',   name: '杨雄',   type: 'warrior',    power: 72, loyalty: 60 },
+  { id: 'leiheng',     name: '雷横',   type: 'warrior',    power: 71, loyalty: 60 },
+  { id: 'lvfang',      name: '吕方',   type: 'warrior',    power: 65, loyalty: 70 },
+  { id: 'guosheng',    name: '郭盛',   type: 'warrior',    power: 64, loyalty: 70 },
+  { id: 'xiangchong',  name: '项充',   type: 'warrior',    power: 62, loyalty: 55 },
+  { id: 'ligun',       name: '李衮',   type: 'warrior',    power: 61, loyalty: 55 },
   // === 朝廷补充 ===
-  { id: 'zhongshidao', name: '种师道', type: 'commander',  power: 78, loyalty: 85, skill: { name: '老经略', desc: '防御战时全军士气+10%', type: 'defend' } },
-  { id: 'tongguan',    name: '童贯',   type: 'commander',  power: 65, loyalty: 70, skill: { name: '枢密使', desc: '每回合额外征兵50', type: 'special' } },
-  { id: 'zhangshuye',  name: '张叔夜', type: 'strategist', power: 52, loyalty: 80, skill: { name: '知州',   desc: '巡视好汉发现率+20%', type: 'special' } },
-  { id: 'zhouang',     name: '周昂',   type: 'warrior',    power: 73, loyalty: 75, skill: { name: '副将',   desc: '跟随统帅时战力+5%', type: 'special' } },
+  { id: 'zhongshidao', name: '种师道', type: 'commander',  power: 78, loyalty: 85 },
+  { id: 'tongguan',    name: '童贯',   type: 'commander',  power: 65, loyalty: 70 },
+  { id: 'zhangshuye',  name: '张叔夜', type: 'strategist', power: 52, loyalty: 80 },
+  { id: 'zhouang',     name: '周昂',   type: 'warrior',    power: 73, loyalty: 75 },
   // === 方腊补充 ===
-  { id: 'fangmao',     name: '方貌',   type: 'warrior',    power: 79, loyalty: 95, skill: { name: '王弟',   desc: '与方腊同驻时兵力上限+200', type: 'special' } },
-  { id: 'sixingfang',  name: '司行方', type: 'warrior',    power: 80, loyalty: 88, skill: { name: '飞叉',   desc: '单挑首回合免伤50%', type: 'defend' } },
-  { id: 'litianrun',   name: '厉天闰', type: 'warrior',    power: 77, loyalty: 82, skill: { name: '镇国',   desc: '守城时每回合恢复3%兵力', type: 'defend' } },
-  { id: 'baodaoyi',    name: '包道乙', type: 'strategist', power: 54, loyalty: 80, skill: { name: '灵应',   desc: '防守时10%概率敌将技能失效', type: 'defend' } },
+  { id: 'fangmao',     name: '方貌',   type: 'warrior',    power: 79, loyalty: 95 },
+  { id: 'sixingfang',  name: '司行方', type: 'warrior',    power: 80, loyalty: 88 },
+  { id: 'litianrun',   name: '厉天闰', type: 'warrior',    power: 77, loyalty: 82 },
+  { id: 'baodaoyi',    name: '包道乙', type: 'strategist', power: 54, loyalty: 80 },
   // === 中立/通用 ===
-  { id: 'wangyin',     name: '王寅',   type: 'warrior',    power: 76, loyalty: 45, skill: { name: '石匠',   desc: '休整时兵力额外回复+30%', type: 'special' } },
-  { id: 'xuguanzhong', name: '许贯忠', type: 'strategist', power: 48, loyalty: 50, skill: { name: '隐士',   desc: '巡视时招募率+25%', type: 'special' } },
-  { id: 'luozhenren',  name: '罗真人', type: 'strategist', power: 60, loyalty: 70, skill: { name: '天玄',   desc: '每回合该据点额外产粮+40，巡视不触发负面事件', type: 'special' } },
+  { id: 'wangyin',     name: '王寅',   type: 'warrior',    power: 76, loyalty: 45 },
+  { id: 'xuguanzhong', name: '许贯忠', type: 'strategist', power: 48, loyalty: 50 },
+  { id: 'luozhenren',  name: '罗真人', type: 'strategist', power: 60, loyalty: 70 },
   // === 扩展武将（第二批）===
-  { id: 'wanghuan',    name: '王焕',   type: 'warrior',    power: 84, loyalty: 70, skill: { name: '老将',   desc: '单挑中每回合防御+5%', type: 'defend' } },
-  { id: 'hanchunbao',  name: '韩存保', type: 'warrior',    power: 77, loyalty: 65, skill: { name: '国士',   desc: '大道进攻时无视敌方阵型克制', type: 'attack' } },
-  { id: 'qiuyue',      name: '丘岳',   type: 'warrior',    power: 75, loyalty: 70, skill: { name: '禁军',   desc: '与朝廷武将同驻时战力+8', type: 'special' } },
-  { id: 'gaoqiu',      name: '高俅',   type: 'commander',  power: 40, loyalty: 60, skill: { name: '太尉',   desc: '征兵消耗粮草-30%', type: 'special' } },
-  { id: 'caijing',     name: '蔡京',   type: 'strategist', power: 35, loyalty: 50, skill: { name: '太师',   desc: '每回合额外获得20粮草', type: 'special' } },
-  { id: 'haosiwen',    name: '郝思文', type: 'warrior',    power: 70, loyalty: 60, skill: { name: '井木犴', desc: '守城时敌方先损失2%兵力', type: 'defend' } },
-  { id: 'xuanzan',     name: '宣赞',   type: 'warrior',    power: 69, loyalty: 65, skill: { name: '丑郡马', desc: '进攻时10%概率敌方无法反击', type: 'attack' } },
-  { id: 'hantao',      name: '韩滔',   type: 'warrior',    power: 63, loyalty: 60, skill: { name: '百胜将', desc: '连赢3回合后伤害+20%', type: 'attack' } },
-  { id: 'pengji',      name: '彭玘',   type: 'warrior',    power: 62, loyalty: 55, skill: { name: '天目将', desc: '可以侦察任意相邻据点', type: 'special' } },
-  { id: 'shantinggui', name: '单廷珪', type: 'warrior',    power: 68, loyalty: 55, skill: { name: '圣水将', desc: '水路进攻伤害+20%', type: 'attack' } },
-  { id: 'weidingguo',  name: '魏定国', type: 'warrior',    power: 67, loyalty: 55, skill: { name: '神火将', desc: '进攻时5%概率造成双倍伤害', type: 'attack' } },
-  { id: 'oupeng',      name: '欧鹏',   type: 'warrior',    power: 64, loyalty: 55, skill: { name: '摩云金翅', desc: '山路进攻免地形惩罚', type: 'attack' } },
-  { id: 'dengfei',     name: '邓飞',   type: 'warrior',    power: 61, loyalty: 60, skill: { name: '火眼狻猊', desc: '巡视时情报获取率+20%', type: 'special' } },
-  { id: 'yanshun',     name: '燕顺',   type: 'warrior',    power: 63, loyalty: 50, skill: { name: '锦毛虎', desc: '山路进攻额外+8%战力', type: 'attack' } },
-  { id: 'yanglin',     name: '杨林',   type: 'warrior',    power: 58, loyalty: 55, skill: { name: '锦豹子', desc: '巡视情报获取率+25%', type: 'special' } },
-  { id: 'peixuan',     name: '裴宣',   type: 'strategist', power: 45, loyalty: 65, skill: { name: '铁面孔目', desc: '守城时敌方攻击-5%', type: 'defend' } },
-  { id: 'shiqian',     name: '时迁',   type: 'strategist', power: 40, loyalty: 45, skill: { name: '鼓上蚤', desc: '巡视时额外发现20粮草', type: 'special' } },
-  { id: 'baisheng',    name: '白胜',   type: 'warrior',    power: 42, loyalty: 40, skill: { name: '白日鼠', desc: '巡视消耗粮草-50%', type: 'special' } },
-  { id: 'tanglong',    name: '汤隆',   type: 'warrior',    power: 55, loyalty: 55, skill: { name: '金钱豹子', desc: '休整时回复+40%', type: 'special' } },
-  { id: 'zhugui',      name: '朱贵',   type: 'warrior',    power: 48, loyalty: 50, skill: { name: '旱地忽律', desc: '巡视好汉发现率+10%', type: 'special' } },
-  { id: 'zhufu',       name: '朱富',   type: 'strategist', power: 43, loyalty: 50, skill: { name: '笑面虎', desc: '招募花费-20%', type: 'special' } },
-  { id: 'lizhong',     name: '李忠',   type: 'warrior',    power: 49, loyalty: 45, skill: { name: '打虎将', desc: '与周通同驻时双方+8战力', type: 'special' } },
-  { id: 'zhoutong',    name: '周通',   type: 'warrior',    power: 46, loyalty: 40, skill: { name: '小霸王', desc: '与李忠同驻时双方+8战力', type: 'special' } },
-  { id: 'duqian',      name: '杜迁',   type: 'warrior',    power: 50, loyalty: 50, skill: { name: '摸着天', desc: '兵力上限+100', type: 'special' } },
-  { id: 'songwan',     name: '宋万',   type: 'warrior',    power: 47, loyalty: 50, skill: { name: '云里金刚', desc: '守城时兵力损耗-10%', type: 'defend' } },
-  { id: 'xueyong',     name: '薛永',   type: 'warrior',    power: 53, loyalty: 45, skill: { name: '病大虫', desc: '单挑中防御+8%', type: 'defend' } },
-  { id: 'caozheng',    name: '曹正',   type: 'warrior',    power: 54, loyalty: 50, skill: { name: '操刀鬼', desc: '休整回复量+30%', type: 'special' } },
-  { id: 'chend',       name: '陈达',   type: 'warrior',    power: 57, loyalty: 50, skill: { name: '跳涧虎', desc: '山路免地形惩罚', type: 'attack' } },
-  { id: 'zhengtianshou',name:'郑天寿', type: 'warrior',    power: 52, loyalty: 45, skill: { name: '白面郎君', desc: '与燕顺同驻时+10战力', type: 'special' } },
-  { id: 'tongwei',     name: '童威',   type: 'warrior',    power: 59, loyalty: 50, skill: { name: '出洞蛟', desc: '水路行军免行动力', type: 'march' } },
-  { id: 'tongmeng',    name: '童猛',   type: 'warrior',    power: 56, loyalty: 50, skill: { name: '翻江蜃', desc: '水路进攻伤害+10%', type: 'attack' } },
-  { id: 'anshenyi',    name: '安道全', type: 'strategist', power: 47, loyalty: 60, skill: { name: '神医',   desc: '休整回复翻倍', type: 'special' } },
-  { id: 'huangfuduan', name: '皇甫端', type: 'strategist', power: 36, loyalty: 50, skill: { name: '紫髯伯', desc: '休整时额外恢复15%兵力', type: 'special' } },
-  { id: 'xiaorang',    name: '萧让',   type: 'strategist', power: 39, loyalty: 55, skill: { name: '圣手书生', desc: '巡视时有文采相伴，招募率+10%', type: 'special' } },
-  { id: 'jindajian',   name: '金大坚', type: 'strategist', power: 38, loyalty: 55, skill: { name: '玉臂匠', desc: '守城时敌方情报探查-15%', type: 'defend' } },
+  { id: 'wanghuan',    name: '王焕',   type: 'warrior',    power: 84, loyalty: 70 },
+  { id: 'hanchunbao',  name: '韩存保', type: 'warrior',    power: 77, loyalty: 65 },
+  { id: 'qiuyue',      name: '丘岳',   type: 'warrior',    power: 75, loyalty: 70 },
+  { id: 'gaoqiu',      name: '高俅',   type: 'commander',  power: 40, loyalty: 60 },
+  { id: 'caijing',     name: '蔡京',   type: 'strategist', power: 35, loyalty: 50 },
+  { id: 'haosiwen',    name: '郝思文', type: 'warrior',    power: 70, loyalty: 60 },
+  { id: 'xuanzan',     name: '宣赞',   type: 'warrior',    power: 69, loyalty: 65 },
+  { id: 'hantao',      name: '韩滔',   type: 'warrior',    power: 63, loyalty: 60 },
+  { id: 'pengji',      name: '彭玘',   type: 'warrior',    power: 62, loyalty: 55 },
+  { id: 'shantinggui', name: '单廷珪', type: 'warrior',    power: 68, loyalty: 55 },
+  { id: 'weidingguo',  name: '魏定国', type: 'warrior',    power: 67, loyalty: 55 },
+  { id: 'oupeng',      name: '欧鹏',   type: 'warrior',    power: 64, loyalty: 55 },
+  { id: 'dengfei',     name: '邓飞',   type: 'warrior',    power: 61, loyalty: 60 },
+  { id: 'yanshun',     name: '燕顺',   type: 'warrior',    power: 63, loyalty: 50 },
+  { id: 'yanglin',     name: '杨林',   type: 'warrior',    power: 58, loyalty: 55 },
+  { id: 'peixuan',     name: '裴宣',   type: 'strategist', power: 45, loyalty: 65 },
+  { id: 'shiqian',     name: '时迁',   type: 'strategist', power: 40, loyalty: 45 },
+  { id: 'baisheng',    name: '白胜',   type: 'warrior',    power: 42, loyalty: 40 },
+  { id: 'tanglong',    name: '汤隆',   type: 'warrior',    power: 55, loyalty: 55 },
+  { id: 'zhugui',      name: '朱贵',   type: 'warrior',    power: 48, loyalty: 50 },
+  { id: 'zhufu',       name: '朱富',   type: 'strategist', power: 43, loyalty: 50 },
+  { id: 'lizhong',     name: '李忠',   type: 'warrior',    power: 49, loyalty: 45 },
+  { id: 'zhoutong',    name: '周通',   type: 'warrior',    power: 46, loyalty: 40 },
+  { id: 'duqian',      name: '杜迁',   type: 'warrior',    power: 50, loyalty: 50 },
+  { id: 'songwan',     name: '宋万',   type: 'warrior',    power: 47, loyalty: 50 },
+  { id: 'xueyong',     name: '薛永',   type: 'warrior',    power: 53, loyalty: 45 },
+  { id: 'caozheng',    name: '曹正',   type: 'warrior',    power: 54, loyalty: 50 },
+  { id: 'chend',       name: '陈达',   type: 'warrior',    power: 57, loyalty: 50 },
+  { id: 'zhengtianshou',name:'郑天寿', type: 'warrior',    power: 52, loyalty: 45 },
+  { id: 'tongwei',     name: '童威',   type: 'warrior',    power: 59, loyalty: 50 },
+  { id: 'tongmeng',    name: '童猛',   type: 'warrior',    power: 56, loyalty: 50 },
+  { id: 'anshenyi',    name: '安道全', type: 'strategist', power: 47, loyalty: 60 },
+  { id: 'huangfuduan', name: '皇甫端', type: 'strategist', power: 36, loyalty: 50 },
+  { id: 'xiaorang',    name: '萧让',   type: 'strategist', power: 39, loyalty: 55 },
+  { id: 'jindajian',   name: '金大坚', type: 'strategist', power: 38, loyalty: 55 },
+  // === 第三批扩展：辽国补充 ===
+  { id: 'yelvdezhong', name: '耶律得重', type: 'commander',  power: 76, loyalty: 88 },
+  { id: 'xiaotianzuo', name: '萧天佐',   type: 'warrior',    power: 79, loyalty: 85 },
+  { id: 'tianshanyong',name: '天山勇',   type: 'strategist', power: 48, loyalty: 80 },
+  { id: 'qulichuqing', name: '曲利出清', type: 'warrior',    power: 73, loyalty: 82 },
+  { id: 'yelvhuei',    name: '耶律辉',   type: 'commander',  power: 70, loyalty: 90 },
+  // === 第三批扩展：田虎补充 ===
+  { id: 'maling',      name: '马灵',     type: 'warrior',    power: 74, loyalty: 80 },
+  { id: 'niuwenzhong', name: '钮文忠',   type: 'warrior',    power: 71, loyalty: 78 },
+  { id: 'guoli',       name: '郭梨',     type: 'warrior',    power: 68, loyalty: 75 },
+  { id: 'fangxuejiu',  name: '房学究',   type: 'strategist', power: 42, loyalty: 76 },
+  // === 第三批扩展：王庆补充 ===
+  { id: 'liuyuan',     name: '柳元',     type: 'warrior',    power: 74, loyalty: 78 },
+  { id: 'panzhong',    name: '潘忠',     type: 'warrior',    power: 69, loyalty: 75 },
+  { id: 'duansanniang',name: '段三娘',   type: 'warrior',    power: 72, loyalty: 80 },
+  { id: 'liuyijing',   name: '刘以敬',   type: 'strategist', power: 44, loyalty: 74 },
+  // === 第三批扩展：方腊补充 ===
+  { id: 'louminzhong', name: '娄敏中',   type: 'strategist', power: 55, loyalty: 88 },
+  { id: 'zushiyuan',   name: '祖士远',   type: 'warrior',    power: 71, loyalty: 82 },
+  { id: 'zhengmojun',  name: '郑魔君',   type: 'warrior',    power: 66, loyalty: 78 },
+  { id: 'lvshinang',   name: '吕师囊',   type: 'warrior',    power: 73, loyalty: 80 },
+  // === 第三批扩展：朝廷补充 ===
+  { id: 'liuguangshi', name: '刘光世',   type: 'commander',  power: 72, loyalty: 82 },
+  { id: 'zongze',      name: '宗泽',     type: 'commander',  power: 75, loyalty: 88 },
+  { id: 'yaopingzhong',name: '姚平仲',   type: 'warrior',    power: 67, loyalty: 80 },
+  // === 第三批扩展：梁山江湖 ===
+  { id: 'zouyuan',     name: '邹渊',     type: 'warrior',    power: 60, loyalty: 50 },
+  { id: 'kongming',    name: '孔明',     type: 'warrior',    power: 55, loyalty: 60 },
+  { id: 'kongliang',   name: '孔亮',     type: 'warrior',    power: 53, loyalty: 60 },
+  { id: 'mengkang',    name: '孟康',     type: 'warrior',    power: 51, loyalty: 50 },
+  { id: 'taozongwang', name: '陶宗旺',   type: 'warrior',    power: 50, loyalty: 48 },
+  { id: 'baoxu',       name: '鲍旭',     type: 'warrior',    power: 57, loyalty: 48 },
+  { id: 'dingsun',     name: '丁得孙',   type: 'warrior',    power: 52, loyalty: 45 },
+  { id: 'gongwang',    name: '龚旺',     type: 'warrior',    power: 54, loyalty: 45 },
+  { id: 'jiaoting',    name: '焦挺',     type: 'warrior',    power: 56, loyalty: 46 },
+  { id: 'yubao',       name: '郁保四',   type: 'warrior',    power: 45, loyalty: 42 },
+  { id: 'wenyuezhang', name: '闻焕章',   type: 'strategist', power: 58, loyalty: 65 },
 ];
 
 // ===== 阵型数据 =====
@@ -615,6 +656,32 @@ function getRetreatDestinations(fromLocId, factionId) {
   return results;
 }
 
+// AI智能选择最佳撤退目的地（优先驻军多的己方据点）
+function pickBestRetreatDest(options, factionId) {
+  if (options.length === 0) return null;
+  // 先找己方据点，选驻军最多的
+  const friendly = options.filter(o => o.type === 'friendly');
+  if (friendly.length > 0) {
+    friendly.sort((a, b) => {
+      const aTroops = getTotalTroops(a.locationId, factionId);
+      const bTroops = getTotalTroops(b.locationId, factionId);
+      return bTroops - aTroops;
+    });
+    return friendly[0];
+  }
+  // 无己方据点，选中立据点（优先高粮草）
+  const neutral = options.filter(o => o.type === 'neutral');
+  if (neutral.length > 0) {
+    neutral.sort((a, b) => {
+      const aGrain = (gameState.locations[a.locationId] && gameState.locations[a.locationId].grain) || 0;
+      const bGrain = (gameState.locations[b.locationId] && gameState.locations[b.locationId].grain) || 0;
+      return bGrain - aGrain;
+    });
+    return neutral[0];
+  }
+  return options[0];
+}
+
 // 选择撤退目的地（玩家弹窗选择，AI 自动选择）
 function selectRetreatDestination(fromLocId, factionId, heroName, isPlayer) {
   const options = getRetreatDestinations(fromLocId, factionId);
@@ -639,8 +706,6 @@ function getHeroTroopCap(hero) {
   if (hero.type === 'commander') cap = 1200;
   else if (hero.type === 'warrior') cap = 1000;
   else cap = 800;
-  // 张浩宇浩宇：兵力上限+300
-  if (hero.id === 'zhanghaoyu') cap += 300;
   return cap;
 }
 
@@ -674,7 +739,7 @@ function getBestHeroAt(locId, factionId) {
 function getEffectiveOwner(locId) {
   const state = gameState.locations[locId];
   if (!state || !state.owner) return null;
-  const legions = gameState.factions[state.owner].legions.filter(l => l.locationId === locId);
+  const legions = gameState.factions[state.owner].legions.filter(l => l.locationId === locId && l.troops > 0);
   return legions.length > 0 ? state.owner : null;
 }
 
@@ -682,7 +747,7 @@ function getEffectiveOwner(locId) {
 function updateLocationOwnership(locId) {
   const state = gameState.locations[locId];
   if (!state || !state.owner) return;
-  const legions = gameState.factions[state.owner].legions.filter(l => l.locationId === locId);
+  const legions = gameState.factions[state.owner].legions.filter(l => l.locationId === locId && l.troops > 0);
   if (legions.length === 0) {
     state.owner = null;
     addLog(`🏚️ ${LOCATIONS.find(l => l.id === locId).name} 因无人驻守变为中立！`, 'info');
@@ -783,15 +848,75 @@ let gameState = null;
 let selectedLocation = null;
 let adjacency = null;
 let playerFaction = null;
-let doubleAttackUsed = false; // 董平技能追踪
 
 function cloneHero(h) {
-  return { id: h.id, name: h.name, type: h.type, power: h.power, loyalty: h.loyalty, skill: { ...h.skill } };
+  return { id: h.id, name: h.name, type: h.type, power: h.power, loyalty: h.loyalty };
 }
 
 function createLegion(hero, troops, locationId) {
   return { hero: cloneHero(hero), troops, locationId };
 }
+
+// ===== 监狱系统 =====
+function addToPrison(hero, troops, factionName) {
+  if (!gameState) return;
+  gameState.prison.push({
+    hero: cloneHero(hero),
+    troops: troops,
+    capturedFrom: factionName,
+    turnCaptured: gameState.turn
+  });
+  gameState.usedHeroIds.add(hero.id);
+  addLog(`🔒 ${hero.name} 被关入大牢！（${factionName}降将，${troops}兵）`, 'info');
+}
+
+function releasePrisoner(index) {
+  if (!gameState || index < 0 || index >= gameState.prison.length) return;
+  const prisoner = gameState.prison[index];
+  const cost = 50;
+  if (!selectedLocation) { addLog('⚠️ 请先选择一个己方据点！', 'bad'); return; }
+  if (getEffectiveOwner(selectedLocation) !== gameState.factionId) { addLog('⚠️ 只能释放在己方据点！', 'bad'); return; }
+  const locGrain = gameState.locations[selectedLocation] ? (gameState.locations[selectedLocation].grain || 0) : 0;
+  if (locGrain < cost) { addLog(`⚠️ 粮草不足！（需要${cost}，当前${locGrain}）`, 'bad'); return; }
+  gameState.locations[selectedLocation].grain -= cost;
+  gameState.factions[gameState.factionId].legions.push(createLegion(prisoner.hero, prisoner.troops, selectedLocation));
+  gameState.prison.splice(index, 1);
+  addLog(`🔓 ${prisoner.hero.name} 被释放，率 ${prisoner.troops} 人加入！花费 ${cost} 粮草。`, 'good');
+  updateSidePanel();
+}
+
+function executePrisoner(index) {
+  if (!gameState || index < 0 || index >= gameState.prison.length) return;
+  const prisoner = gameState.prison[index];
+  if (!confirm(`确定要处死 ${prisoner.hero.name} 吗？此操作不可撤销！`)) return;
+  gameState.prison.splice(index, 1);
+  gameState.usedHeroIds.delete(prisoner.hero.id);
+  addLog(`☠️ ${prisoner.hero.name} 被处死。`, 'bad');
+  updateSidePanel();
+}
+
+function renderPrisonUI() {
+  if (!gameState || gameState.prison.length === 0) {
+    return '<div style="color:#888;font-size:12px;padding:8px 0;">大牢空空如也</div>';
+  }
+  let html = '';
+  gameState.prison.forEach((p, i) => {
+    const typeIcon = p.hero.type === 'commander' ? '⭐' : (p.hero.type === 'warrior' ? '⚔️' : '📜');
+    html += `<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 8px;margin:2px 0;background:rgba(0,0,0,0.3);border-radius:4px;font-size:12px;">
+      <div>
+        <span style="color:#ffd700;">${typeIcon} ${p.hero.name}</span>
+        <span style="color:#aaa;margin-left:4px;">战力${p.hero.power} | ${p.hero.type === 'commander' ? '统帅' : (p.hero.type === 'warrior' ? '武将' : '军师')}</span>
+        <span style="color:#888;font-size:10px;"> | 🗓️第${p.turnCaptured}回合</span>
+      </div>
+      <div style="display:flex;gap:4px;">
+        <button onclick="releasePrisoner(${i})" style="padding:2px 8px;font-size:11px;background:linear-gradient(180deg,#2a6a2a,#1a4a1a);border:1px solid #4caf50;border-radius:3px;color:#4caf50;cursor:pointer;">🔓释放(50🌾)</button>
+        <button onclick="executePrisoner(${i})" style="padding:2px 8px;font-size:11px;background:linear-gradient(180deg,#6a1a1a,#3a0a0a);border:1px solid #f44336;border-radius:3px;color:#f44336;cursor:pointer;">☠️处死</button>
+      </div>
+    </div>`;
+  });
+  return html;
+}
+// ===== 监狱系统结束 =====
 
 // 阵营预设将领配置
 const PRESET_HEROES = {
@@ -808,19 +933,19 @@ const PRESET_HEROES = {
 // ===== 据点专属巡视招募武将（每据点强/中/弱搭配）=====
 const LOCATION_HEROES = {
   // 朝廷区域
-  dongjing:       ['guansheng', 'qiuyue', 'wangjin', 'gaoqiu', 'caijing'],
-  qingzhou:       ['huyanzhuo', 'qinming', 'haosiwen', 'zhangshuye'],
-  cangzhou:       ['linchong', 'xuning', 'chaijin', 'duqian'],
+  dongjing:       ['guansheng', 'qiuyue', 'wangjin', 'gaoqiu', 'caijing', 'liuguangshi', 'zongze', 'yangjian', 'tongguan'],
+  qingzhou:       ['huyanzhuo', 'qinming', 'haosiwen', 'zhangshuye', 'yaopingzhong', 'wanghuan'],
+  cangzhou:       ['linchong', 'xuning', 'chaijin', 'duqian', 'wenyuezhang'],
   dengzhou:       ['sunli', 'xiebao', 'xiezhen', 'gudasao', 'sunxin'],
-  qingfengshan:   ['huarong', 'liutang', 'hantao', 'pengji'],
+  qingfengshan:   ['huarong', 'liutang', 'hantao', 'pengji', 'baoxu'],
   // 方腊区域
-  hangzhou:       ['fangla_h', 'fangjie', 'sixingfang', 'wangyin', 'xuguanzhong'],
-  qingxixian:     ['shibao', 'pangwanchun', 'litianrun', 'baisheng'],
+  hangzhou:       ['fangla_h', 'fangjie', 'sixingfang', 'wangyin', 'xuguanzhong', 'louminzhong', 'zhengmojun'],
+  qingxixian:     ['shibao', 'pangwanchun', 'litianrun', 'baisheng', 'zushiyuan', 'lvshinang'],
   muzhou:         ['dengyuanjue', 'fangmao', 'baodaoyi', 'tongwei', 'tongmeng'],
-  shezhou:        ['shibao', 'litianrun', 'zourun', 'chend'],
+  shezhou:        ['shibao', 'litianrun', 'zourun', 'chend', 'lvshinang'],
   // 梁山区域
-  liangshanbo:    ['songjiang', 'likui', 'wuyong', 'gongsunsheng', 'zhugui'],
-  shijiecun:      ['ruanxiaoqi', 'ruanxiaoer', 'ruanxiaowu', 'zhangshun', 'lichun'],
+  liangshanbo:    ['songjiang', 'likui', 'wuyong', 'gongsunsheng', 'zhugui', 'lvfang', 'guosheng'],
+  shijiecun:      ['ruanxiaoqi', 'ruanxiaoer', 'ruanxiaowu', 'zhangshun', 'lichun', 'huangfuduan'],
   // 大名府区域
   damingfu_c:     ['lujunyi', 'yanqing', 'suochao', 'zhangkai', 'anshenyi'],
   dongchangfu:    ['zhangqing', 'zhutong', 'xuanzan', 'peixuan'],
@@ -828,24 +953,24 @@ const LOCATION_HEROES = {
   // 祝家庄区域
   zhujiazhuang_c: ['yangzhi', 'husanniang', 'liying', 'tanglong', 'zhoutong'],
   // 田虎区域
-  shaohuashan:    ['shijin', 'zhuwu', 'yanshun', 'zhengtianshou', 'chend'],
-  dulonggang:     ['bianxiang', 'sunan', 'qiongying', 'qiaoqing', 'oupeng'],
+  shaohuashan:    ['shijin', 'zhuwu', 'yanshun', 'zhengtianshou', 'chend', 'maling', 'fangxuejiu'],
+  dulonggang:     ['bianxiang', 'sunan', 'qiongying', 'qiaoqing', 'oupeng', 'niuwenzhong', 'guoli'],
   // 王庆区域
-  jiangzhou:      ['lizhu', 'duxue', 'daizong', 'zhangheng', 'leiheng'],
-  xunyangjiang:   ['lichun', 'zhangshun', 'tongwei', 'tongmeng', 'shiqian'],
+  jiangzhou:      ['lizhu', 'duxue', 'daizong', 'zhangheng', 'leiheng', 'liuyuan', 'liuyijing', 'fengtai', 'yuanlang'],
+  xunyangjiang:   ['lichun', 'zhangshun', 'tongwei', 'tongmeng', 'shiqian', 'panzhong', 'duansanniang'],
   // 辽国区域
-  erlongshan:     ['luzhishen', 'yangzhi', 'caozheng', 'songwan'],
-  taohuashan:     ['aliqi', 'dalibo', 'lizhong', 'zhoutong'],
-  baihushan:      ['qiongyao', 'wuyanguang', 'muhong', 'yanshun'],
+  erlongshan:     ['luzhishen', 'yangzhi', 'caozheng', 'songwan', 'yelvdezhong', 'qulichuqing'],
+  taohuashan:     ['aliqi', 'dalibo', 'lizhong', 'zhoutong', 'xiaotianzuo', 'tianshanyong'],
+  baihushan:      ['qiongyao', 'wuyanguang', 'muhong', 'yanshun', 'yelvhuei'],
   // 中立山寨
-  zengtoushi_c:   ['hanchunbao', 'shantinggui', 'weidingguo', 'hantao', 'tanglong'],
-  dongpingfu:     ['dongping', 'muhong', 'yangxiong', 'dengfei'],
-  mangdangshan:   ['xiangchong', 'ligun', 'oupeng', 'shiqian'],
-  kushushan:      ['shixiu', 'yangxiong', 'zourun', 'yanglin'],
+  zengtoushi_c:   ['hanchunbao', 'shantinggui', 'weidingguo', 'hantao', 'tanglong', 'mengkang', 'taozongwang'],
+  dongpingfu:     ['dongping', 'muhong', 'yangxiong', 'dengfei', 'zouyuan', 'gongwang'],
+  mangdangshan:   ['xiangchong', 'ligun', 'oupeng', 'shiqian', 'jiaoting'],
+  kushushan:      ['shixiu', 'yangxiong', 'zourun', 'yanglin', 'yubao'],
   // 事件地点
-  jingyanggang:   ['wusong', 'shien', 'xueyong', 'zhugui'],
-  huangnigang:    ['chaogai', 'gongsunsheng', 'baisheng', 'liutang'],
-  kuaihuolin:     ['wusong', 'shien', 'lizhong', 'zhufu'],
+  jingyanggang:   ['wusong', 'shien', 'xueyong', 'zhugui', 'dingsun'],
+  huangnigang:    ['chaogai', 'gongsunsheng', 'baisheng', 'liutang', 'luozhenren'],
+  kuaihuolin:     ['wusong', 'shien', 'lizhong', 'zhufu', 'kongming', 'kongliang'],
   shizipo:        ['sunxin', 'gudasao', 'zhangqing', 'xiaorang', 'jindajian'],
   // 特殊隐藏
   _hidden:        ['jiashihan', 'zhanghaoyu', 'zhangyongxu', 'masheng'],
@@ -854,7 +979,6 @@ const LOCATION_HEROES = {
 function initGame(factionId) {
   playerFaction = factionId;
   adjacency = buildAdjacency();
-  doubleAttackUsed = false;
 
   gameState = {
     turn: 1,
@@ -866,6 +990,7 @@ function initGame(factionId) {
     logs: [],
     usedHeroIds: new Set(),
     scoutedLocations: {}, // { locId: turnRevealed } 侦察情报
+    prison: [], // { hero, troops, capturedFrom, turnCaptured }
   };
 
   // 初始化据点（owner + grain，无 garrison——兵力全在军团里）
@@ -897,15 +1022,23 @@ function initGame(factionId) {
       }
     });
 
-    // AI 阵营额外随机补好汉（根据初始据点数调整）
+    // AI 阵营额外补好汉（从该阵营据点的专属武将池中抽取）
     if (f.id !== factionId) {
       const ownedCount = LOCATIONS.filter(l => l.owner === f.id).length;
-      const extraCount = ownedCount >= 4 ? 0 : (ownedCount >= 3 ? 1 : 2); // 地少的阵营多补好汉
-      const pool = HERO_POOL.filter(h => !gameState.usedHeroIds.has(h.id));
+      const extraCount = ownedCount >= 4 ? 0 : (ownedCount >= 3 ? 1 : 2);
+      const aiLocs = LOCATIONS.filter(l => l.owner === f.id);
+      // 收集所有据点可招但尚未使用的武将
+      const pool = [];
+      aiLocs.forEach(loc => {
+        const locHeroes = (LOCATION_HEROES[loc.id] || []).filter(hid => !gameState.usedHeroIds.has(hid));
+        locHeroes.forEach(hid => {
+          const h = HERO_POOL.find(hh => hh.id === hid);
+          if (h && !pool.some(p => p.id === h.id)) pool.push(h);
+        });
+      });
       for (let i = 0; i < extraCount && pool.length > 0; i++) {
         const idx = Math.floor(Math.random() * pool.length);
         const h = pool[idx];
-        const aiLocs = LOCATIONS.filter(l => l.owner === f.id);
         const targetLoc = aiLocs[Math.floor(Math.random() * aiLocs.length)];
         if (targetLoc) {
           const troopCount = h.type === 'commander' ? 500 : (h.type === 'warrior' ? 400 : 300);
@@ -970,36 +1103,6 @@ function calculateCombat(atkTroops, atkHero, defTroops, defHero, terrain, locTyp
   let atkPower = atkTroops * coeff * (1 + (atkHero ? atkHero.power : 0) / 200);
   let defPower = defTroops * defCoeff * (1 + (defHero ? defHero.power : 0) / 200);
 
-  // 攻击方技能
-  if (atkHero) {
-    const sn = atkHero.skill.name;
-    if (sn === '无双') atkPower *= 1.1;
-    if (sn === '神射') defPower *= 0.95;
-    if (sn === '智取') defPower *= 0.9;
-    if (sn === '道法' && Math.random() < 0.2) defPower = defTroops * defCoeff;
-    if (sn === '武圣' && terrain === 'road') atkPower *= 1.15;
-    if (sn === '飞石' && Math.random() < 0.2) defPower = defTroops * defCoeff;
-    if (sn === '霹雳火') atkPower *= (0.75 + Math.random() * 0.5);
-    if (sn === '连环马' && terrain === 'road') defPower = defTroops * defCoeff;
-    if (sn === '赤发鬼' && terrain === 'mountain') atkPower *= 1.1;
-    if (sn === '拼命三郎' && atkTroops < 300) atkPower *= 1.25;
-    if (sn === '两头蛇' && terrain === 'mountain') defPower *= 0.97;
-    if (sn === '钩镰枪' && defFactionId === 'liao') atkPower *= 1.20;
-    if (sn === '混江龙' && terrain === 'water') defPower = defTroops * defCoeff;
-    if (sn === '活阎罗' && terrain === 'water') defPower *= 0.85;
-    if (sn === '九纹龙') {
-      const owned = Object.values(gameState.locations).filter(l => l.owner === atkFactionId).length;
-      atkPower *= (1 + owned * 0.05);
-    }
-  }
-
-  // 防御方技能
-  if (defHero) {
-    const sn = defHero.skill.name;
-    if (sn === '狂暴') defPower *= 1.3;
-    if (sn === '托塔天王') defPower *= 1.2;
-  }
-
   // 随机波动
   const atkFinal = atkPower * (0.85 + Math.random() * 0.3);
   const defFinal = defPower * (0.85 + Math.random() * 0.3);
@@ -1015,9 +1118,7 @@ function calculateCombat(atkTroops, atkHero, defTroops, defHero, terrain, locTyp
     defenderLoss = Math.floor(atkFinal * 0.2);
   }
 
-  if (defHero && defHero.skill.name === '金刚') {
-    defenderLoss = Math.floor(defenderLoss * 0.8);
-  }
+  // (技能系统已移除)
 
   // 招降与投降
   let surrender = null;
@@ -1028,8 +1129,7 @@ function calculateCombat(atkTroops, atkHero, defTroops, defHero, terrain, locTyp
       if (Math.random() < surrenderChance) surrender = { type: 'surrender', hero: defHero };
     }
     if (!surrender) {
-      const yanqingBonus = (atkHero && atkHero.id === 'yanqing') ? 0.25 : 0;
-      const captureChance = 0.25 * (1 - (defHero.loyalty || 50) / 200) + yanqingBonus;
+      const captureChance = 0.25 * (1 - (defHero.loyalty || 50) / 200);
       if (Math.random() < captureChance) surrender = { type: 'capture', hero: defHero };
     }
     if (!surrender && (defHero.loyalty || 50) < 30) {
@@ -1074,40 +1174,9 @@ function calculateDuelRound(atkTroops, atkHero, atkFormation, defTroops, defHero
   const terrainMod = { road: 1.0, mountain: 0.7, water: 0.6 };
   atkRate *= (terrainMod[terrain] || 1.0);
 
-  // 水军好汉水路无惩罚
-  if (terrain === 'water') {
-    const waterIds = ['zhangshun', 'ruanxiaoer', 'ruanxiaowu', 'ruanxiaoqi', 'lichun', 'zhangheng'];
-    if (waterIds.includes(atkHero.id)) atkRate /= 0.6; // 恢复
-    // 张横船火：水路+15%伤害
-    if (atkHero.id === 'zhangheng') atkRate *= 1.15;
-  }
-  // 武松山路无惩罚
-  if (terrain === 'mountain' && atkHero.id === 'wusong') atkRate /= 0.7;
-
-  // 李应飞刀：首回合+10%伤害
-  if (atkHero.id === 'liying') atkRate *= 1.10;
-  // 石宝劈风：每回合伤害+12%
-  if (atkHero.id === 'shibao') atkRate *= 1.12;
-  // 庞万春连珠：先手额外造成8%伤害
-  if (atkHero.id === 'pangwanchun') atkRate *= 1.08;
-  // 穆弘豪杰：每个控制的中立据点+3%伤害
-  if (atkHero.id === 'muhong') {
-    const neutralOwned = Object.values(gameState.locations).filter(l => l.owner === (battle ? battle.attackerId : null)).length;
-    // 简化：直接用atkFaction据点数的1/3作为加成
-    atkRate *= 1.05; // 固定5%加成简化
-  }
-
   // 防御方阵型防御修正
   let atkDefMod = 1 - defFormation.defMod;
   let defDefMod = 1 - atkFormation.defMod;
-  // 朱仝美髯：守城时敌方攻击-8%
-  if (defHero && defHero.id === 'zhutong') atkDefMod += 0.08;
-  // 张开铁壁：守城时防御+15%
-  if (defHero && defHero.id === 'zhangkai') atkDefMod += 0.15;
-  // 邓元觉宝光：守城时免疫阵型克制
-  if (defHero && defHero.id === 'dengyuanjue') { isCounter = false; isCountered = false; }
-  // 麻昇破阵：单挑中无视敌方阵型克制
-  if (atkHero && atkHero.id === 'masheng') { isCounter = false; isCountered = false; }
   // 被克制方阵型加成减半
   if (isCountered) atkDefMod = Math.max(0.3, atkDefMod - defFormation.defMod * 0.5);
   if (isCounter) defDefMod = Math.max(0.3, defDefMod - atkFormation.defMod * 0.5);
@@ -1561,10 +1630,6 @@ function confirmTransport(targetIdx) {
   }
 
   gameState.actionPoints -= 1;
-  if (myLegions.some(l => l.hero.id === 'daizong' && [...selectedIndices].includes(myLegions.indexOf(l)))) {
-    gameState.actionPoints += 1;
-    addLog('⚡ 戴宗「神行」：运输不消耗行动力！', 'good');
-  }
 
   // 动态归属
   updateLocationOwnership(fromLocId);
@@ -1623,8 +1688,6 @@ function showRestLegionSelection(locId) {
 
 function getRestHealAmount(legion, loc) {
   let heal = Math.floor(loc.baseGrain * 1.5);
-  if (legion.hero.id === 'linchong') heal = Math.floor(heal * 1.5);
-  if (legion.hero.id === 'wangjin') heal = Math.floor(heal * 1.6);
   return heal;
 }
 
@@ -1646,8 +1709,6 @@ function cancelRestSelection() {
 
 function restLegion(legion, loc) {
   let heal = Math.floor(loc.baseGrain * 1.5);
-  if (legion.hero.id === 'linchong') heal = Math.floor(heal * 1.5);
-  if (legion.hero.id === 'wangjin') heal = Math.floor(heal * 1.6);
   const cap = getHeroTroopCap(legion.hero);
   legion.troops = Math.min(legion.troops + heal, cap);
   gameState.actionPoints -= 1;
@@ -1673,9 +1734,6 @@ function doPatrol(locId) {
   gameState.locations[locId].grain -= cost;
   gameState.actionPoints -= 1;
 
-  const zhuwuBonus = myLegions.some(l => l.hero.id === 'zhuwu') ? 0.05 : 0;
-  const jiashihanBonus = myLegions.some(l => l.hero.id === 'jiashihan') ? 0.05 : 0;
-  const heroFindBonus = zhuwuBonus + jiashihanBonus;
   const roll = Math.random();
   const hasEvent = loc.event !== null;
 
@@ -1688,20 +1746,20 @@ function doPatrol(locId) {
 
   if (hasEvent && roll < 0.20) {
     triggerLocationEvent(locId, loc.event);
-  } else if (roll < 0.28 + heroFindBonus) {
+  } else if (roll < 0.28 + 0) {
     recruitHero(locId);
-  } else if (roll < 0.46 + heroFindBonus) {
+  } else if (roll < 0.46 + 0) {
     const amount = 50 + Math.floor(Math.random() * 100);
     if (myLegions.length > 0) {
       const rl = myLegions[Math.floor(Math.random() * myLegions.length)];
       rl.troops = Math.min(rl.troops + amount, getHeroTroopCap(rl.hero));
     }
     addLog(`👥 巡视 ${loc.name}：发现流民，+${amount} 兵！`, 'good');
-  } else if (roll < 0.53 + heroFindBonus) {
+  } else if (roll < 0.53 + 0) {
     const gift = 100 + Math.floor(Math.random() * 150);
     gameState.locations[locId].grain = (gameState.locations[locId].grain || 0) + gift;
     addLog(`🎁 巡视 ${loc.name}：当地富绅仰慕义军，献上 ${gift} 粮草！`, 'good');
-  } else if (roll < 0.60 + heroFindBonus) {
+  } else if (roll < 0.60 + 0) {
     if (Math.random() < 0.5) {
       const loss = 40 + Math.floor(Math.random() * 60);
       if (myLegions.length > 0) {
@@ -1714,7 +1772,7 @@ function doPatrol(locId) {
       gameState.locations[locId].grain = Math.max(0, oldGrain - lossGrain);
       addLog(`🔫 巡视 ${loc.name}：遭遇流寇打劫！被抢走 ${Math.min(lossGrain, oldGrain)} 粮草！`, 'bad');
     }
-  } else if (hasAdjEnemy && roll < 0.75 + heroFindBonus) {
+  } else if (hasAdjEnemy && roll < 0.75 + 0) {
     revealIntel(locId);
   } else if (roll < 0.97) {
     addLog(`🔍 巡视 ${loc.name}：平安无事。`, 'info');
@@ -1786,31 +1844,8 @@ function recruitHero(locId) {
     }
   }
 
-  let pool = HERO_POOL.filter(h => !gameState.usedHeroIds.has(h.id) && !h.hidden);
-  if (pool.length === 0) { addLog(`🔍 巡视 ${loc.name}：天下好汉皆已有主。`, 'info'); return; }
-
-  if (hasWater && Math.random() < 0.5) {
-    const wp = pool.filter(h => getHeroTerrainAffinity(h) === 'water');
-    if (wp.length > 0) pool = wp;
-  } else if (hasMountain && Math.random() < 0.5) {
-    const mp = pool.filter(h => getHeroTerrainAffinity(h) === 'mountain');
-    if (mp.length > 0) pool = mp;
-  }
-
-  const hero = pool[Math.floor(Math.random() * pool.length)];
-  const hasChaijin = gameState.factions[gameState.factionId].legions.some(l => l.hero.id === 'chaijin');
-  const recruitCost = hasChaijin ? 25 : 50;
-  const typeNames = { commander: '统帅', warrior: '武将', strategist: '军师' };
-
-  if ((gameState.locations[locId].grain || 0) >= recruitCost) {
-    gameState.locations[locId].grain -= recruitCost;
-    const recruitTroops = hero.type === 'commander' ? 300 : (hero.type === 'warrior' ? 250 : 200);
-    gameState.factions[gameState.factionId].legions.push(createLegion(hero, recruitTroops, locId));
-    gameState.usedHeroIds.add(hero.id);
-    addLog(`🎉 巡视 ${loc.name}：偶遇好汉【${hero.name}】！（${typeNames[hero.type]}，战力 ${hero.power}，率 ${recruitTroops} 人）花费 ${recruitCost} 粮草招入麾下！`, 'good');
-  } else {
-    addLog(`🔍 巡视 ${loc.name}：偶遇好汉【${hero.name}】，但粮草不足！（需要 ${recruitCost}）`, 'bad');
-  }
+  // 据点无专属武将可招募
+  addLog(`🔍 巡视 ${loc.name}：此地已无新的好汉可以招募。`, 'info');
 }
 
 function revealIntel(locId) {
@@ -1821,23 +1856,14 @@ function revealIntel(locId) {
     if (ns.owner && ns.owner !== gameState.factionId) {
       const totalTroops = getTotalTroops(n.locationId, ns.owner);
       const enemyLegions = gameState.factions[ns.owner].legions.filter(l => l.locationId === n.locationId);
-      const hasXiezhen = enemyLegions.some(l => l.hero.id === 'xiezhen');
-      const hasYangzhi = enemyLegions.some(l => l.hero.id === 'yangzhi');
       const locName = LOCATIONS.find(l => l.id === n.locationId).name;
-
-      if (hasXiezhen) {
-        revealed.push(`${locName}(兵力被封锁)`);
-      } else if (hasYangzhi) {
-        revealed.push(`${locName}(情报被封锁)`);
+      let detail = `${locName}：${totalTroops}兵`;
+      if (enemyLegions.length > 0) {
+        detail += ` | ${enemyLegions.map(l => l.hero.name + '(' + l.troops + '兵)').join('、')}`;
       } else {
-        let detail = `${locName}：${totalTroops}兵`;
-        if (enemyLegions.length > 0) {
-          detail += ` | ${enemyLegions.map(l => l.hero.name + '(' + l.troops + '兵)').join('、')}`;
-        } else {
-          detail += ' | 无将驻守';
-        }
-        revealed.push(detail);
+        detail += ' | 无将驻守';
       }
+      revealed.push(detail);
       // 侦察标记：3回合有效
       gameState.scoutedLocations[n.locationId] = gameState.turn;
     }
@@ -1880,16 +1906,19 @@ function triggerLocationEvent(locId, eventType) {
       addLog(`🌲 野猪林！义士相救，+${troopAmt} 兵力！`, 'good');
       break;
     case 'kuaihuo':
-      const pool = HERO_POOL.filter(h => !gameState.usedHeroIds.has(h.id) && h.type === 'warrior');
-      if (pool.length > 0 && Math.random() < 0.5) {
-        const hero = pool[Math.floor(Math.random() * pool.length)];
-        const cost = 80;
-        if ((gameState.locations[locId].grain || 0) >= cost) {
-          gameState.locations[locId].grain -= cost;
-          gameState.factions[gameState.factionId].legions.push(createLegion(hero, 300, locId));
-          gameState.usedHeroIds.add(hero.id);
-          addLog(`🍺 快活林擂台！${hero.name} 率 300 人加入，花费 ${cost} 粮草！（战力 ${hero.power}）`, 'good');
-        } else { addLog(`🍺 快活林擂台！${hero.name} 愿意加入，但粮草不足...`, 'bad'); }
+      const kuaihuoHeroes = (LOCATION_HEROES['kuaihuolin'] || []).filter(hid => !gameState.usedHeroIds.has(hid));
+      if (kuaihuoHeroes.length > 0 && Math.random() < 0.5) {
+        const hid = kuaihuoHeroes[Math.floor(Math.random() * kuaihuoHeroes.length)];
+        const hero = HERO_POOL.find(h => h.id === hid);
+        if (hero) {
+          const cost = 80;
+          if ((gameState.locations[locId].grain || 0) >= cost) {
+            gameState.locations[locId].grain -= cost;
+            gameState.factions[gameState.factionId].legions.push(createLegion(hero, 300, locId));
+            gameState.usedHeroIds.add(hero.id);
+            addLog(`🍺 快活林擂台！${hero.name} 率 300 人加入，花费 ${cost} 粮草！（战力 ${hero.power}）`, 'good');
+          } else { addLog(`🍺 快活林擂台！${hero.name} 愿意加入，但粮草不足...`, 'bad'); }
+        }
       } else { addLog('🍺 快活林酒肆热闹，但未遇良将。', 'info'); }
       break;
     case 'shizi':
@@ -1920,12 +1949,15 @@ function triggerLocationEvent(locId, eventType) {
       }
       break;
     case 'xunyang':
-      const wp = HERO_POOL.filter(h => getHeroTerrainAffinity(h) === 'water' && !gameState.usedHeroIds.has(h.id));
-      if (wp.length > 0 && Math.random() < 0.6) {
-        const wh = wp[Math.floor(Math.random() * wp.length)];
-        gameState.factions[gameState.factionId].legions.push(createLegion(wh, 300, locId));
-        gameState.usedHeroIds.add(wh.id);
-        addLog(`🌊 浔阳江！${wh.name} 率 300 水军来投！（战力 ${wh.power}）`, 'good');
+      const xunyangHeroes = (LOCATION_HEROES['xunyangjiang'] || []).filter(hid => !gameState.usedHeroIds.has(hid));
+      if (xunyangHeroes.length > 0 && Math.random() < 0.6) {
+        const hid = xunyangHeroes[Math.floor(Math.random() * xunyangHeroes.length)];
+        const wh = HERO_POOL.find(h => h.id === hid);
+        if (wh) {
+          gameState.factions[gameState.factionId].legions.push(createLegion(wh, 300, locId));
+          gameState.usedHeroIds.add(wh.id);
+          addLog(`🌊 浔阳江！${wh.name} 率 300 水军来投！（战力 ${wh.power}）`, 'good');
+        }
       } else {
         const bonus = 100 + Math.floor(Math.random() * 150);
         gameState.locations[locId].grain = (gameState.locations[locId].grain || 0) + bonus;
@@ -1943,11 +1975,13 @@ function executeAITurn(factionId, animations) {
   if (!faction) return;
   const fData = gameState.factions[factionId];
   const myLegions = fData.legions;
-  if (myLegions.length === 0) return;
+  // 检查阵营是否实际存活（有可战斗军团驻守据点才算）
+  const hasEffectiveLoc = Object.keys(gameState.locations).some(id => getEffectiveOwner(id) === factionId);
+  if (myLegions.length === 0 || !hasEffectiveLoc) return;
 
   // ===== 资源评估 =====
   const myLocs = Object.keys(gameState.locations).filter(id =>
-    gameState.locations[id].owner === factionId
+    getEffectiveOwner(id) === factionId
   );
   const totalTroops = myLegions.reduce((s, l) => s + l.troops, 0);
   const totalGrain = myLocs.reduce((s, id) => s + (gameState.locations[id].grain || 0), 0);
@@ -2013,7 +2047,7 @@ function executeAITurn(factionId, animations) {
         const neighbors = getNeighbors(legion.locationId);
         neighbors.forEach(n => {
           const ns = gameState.locations[n.locationId];
-          if (ns.owner === factionId) return;
+          if (getEffectiveOwner(n.locationId) === factionId) return;
           const defTotal = getTotalTroops(n.locationId, ns.owner || '');
           const defHero = ns.owner ? getBestHeroAt(n.locationId, ns.owner) : null;
 
@@ -2022,19 +2056,12 @@ function executeAITurn(factionId, animations) {
           let myEffPower = legion.troops * (terrainMod[n.terrain] || 1.0) * (1 + legion.hero.power / 200);
           const defEffPower = defTotal * (1 + (defHero ? defHero.power : 0) / 200);
 
-          // 水军/山路好汉修正
-          if (n.terrain === 'water') {
-            const waterIds = ['zhangshun','ruanxiaoer','ruanxiaowu','ruanxiaoqi','lichun','zhangheng'];
-            if (waterIds.includes(legion.hero.id)) myEffPower /= 0.6;
-          }
-          if (n.terrain === 'mountain' && legion.hero.id === 'wusong') myEffPower /= 0.7;
-
           const advantage = myEffPower / Math.max(defEffPower, 1);
           if (advantage < sp.minAdvantage) return; // 胜算不够，不打
 
           // 评分：综合考虑
           let score = advantage * 10; // 基础分
-          if (ns.owner === null) score += 5; // 中立优先
+          if (getEffectiveOwner(n.locationId) === null) score += 5; // 中立优先
           if (n.terrain === 'road') score += 2; // 大道好走
           if (defHero && defHero.power > legion.hero.power + 10) score -= 3; // 敌将太强
           const locObj = LOCATIONS.find(l => l.id === n.locationId);
@@ -2083,12 +2110,21 @@ function executeAITurn(factionId, animations) {
           gameState.locations[t.toId].owner = factionId;
           t.legion.locationId = t.toId;
           t.legion.troops = Math.max(t.legion.troops, 30);
-          if (result.surrender && !fData.legions.some(l => l.hero.id === result.surrender.hero.id)) {
-            if (oldOwner) {
-              const oi = gameState.factions[oldOwner].legions.findIndex(l => l.hero.id === result.surrender.hero.id);
-              if (oi >= 0) gameState.factions[oldOwner].legions.splice(oi, 1);
-            }
-            fData.legions.push(createLegion(result.surrender.hero, Math.floor(t.defTroops * 0.3), t.toId));
+          // 先提取投降武将信息
+          let surrenderedHero = null;
+          if (result.surrender && oldOwner) {
+            const oi = gameState.factions[oldOwner].legions.findIndex(l => l.hero.id === result.surrender.hero.id);
+            if (oi >= 0) surrenderedHero = gameState.factions[oldOwner].legions[oi].hero;
+          }
+          // 移除防守方在该据点的全部军团（防止僵尸军团让阵营复活）
+          if (oldOwner) {
+            gameState.factions[oldOwner].legions = gameState.factions[oldOwner].legions.filter(l =>
+              l.locationId !== t.toId
+            );
+          }
+          // 投降武将加入进攻方
+          if (surrenderedHero && !fData.legions.some(l => l.hero.id === surrenderedHero.id)) {
+            fData.legions.push(createLegion(surrenderedHero, Math.floor(t.defTroops * 0.3), t.toId));
           }
           addLog(`⚔️ ${faction.name}${t.legion.hero.name} 攻占 ${toLoc.name}！（损${result.attackerLoss}兵）`, 'bad');
           if (animations) animations.push({ from: fromLoc, to: t.toId });
@@ -2150,18 +2186,20 @@ function executeAITurn(factionId, animations) {
       const wl = LOCATIONS.find(l => l.id === weak.locationId);
       if (wl) weak.troops = Math.min(weak.troops + Math.floor(wl.baseGrain * 2), getHeroTroopCap(weak.hero));
     }
-    // 4. 巡视招将
+    // 4. 巡视招将（仅限据点专属武将）
     else if (Math.random() < sp.patrolChance) {
       const legion = myLegions[Math.floor(Math.random() * myLegions.length)];
       const locGrain = gameState.locations[legion.locationId].grain || 0;
       if (locGrain >= 20 && Math.random() < 0.50 && myLegions.length < 10) {
-        const pool = HERO_POOL.filter(h => !gameState.usedHeroIds.has(h.id) && !h.hidden);
-        if (pool.length > 0) {
-          const hero = pool[Math.floor(Math.random() * pool.length)];
-          fData.legions.push(createLegion(hero, hero.type === 'commander' ? 300 : (hero.type === 'warrior' ? 250 : 200), legion.locationId));
-          gameState.usedHeroIds.add(hero.id);
-          gameState.locations[legion.locationId].grain -= 30;
-          // AI巡视招募（不显示日志）
+        const locHeroes = (LOCATION_HEROES[legion.locationId] || []).filter(hid => !gameState.usedHeroIds.has(hid));
+        if (locHeroes.length > 0) {
+          const hid = locHeroes[Math.floor(Math.random() * locHeroes.length)];
+          const hero = HERO_POOL.find(h => h.id === hid);
+          if (hero) {
+            fData.legions.push(createLegion(hero, hero.type === 'commander' ? 300 : (hero.type === 'warrior' ? 250 : 200), legion.locationId));
+            gameState.usedHeroIds.add(hero.id);
+            gameState.locations[legion.locationId].grain -= 30;
+          }
         }
       }
     }
@@ -2185,13 +2223,9 @@ function endTurn() {
   document.querySelector('#bottom-bar button').disabled = true;
 
   addLog(`--- 第 ${gameState.turn} 回合结束 ---`, 'info');
-  doubleAttackUsed = false;
 
   // 张永旭永旭
   gameState.factions[gameState.factionId].legions.forEach(lg => {
-    if (lg.hero.id === 'zhangyongxu' && lg.troops > 0) {
-      lg.troops = Math.min(lg.troops + Math.floor(getHeroTroopCap(lg.hero) * 0.05), getHeroTroopCap(lg.hero));
-    }
   });
 
   // 粮草结算
@@ -2202,8 +2236,6 @@ function endTurn() {
       const loc = LOCATIONS.find(l => l.id === locId);
       let bonus = grainRates[loc.type] || 40;
       const legionsHere = gameState.factions[effOwner].legions.filter(l => l.locationId === locId);
-      if (legionsHere.some(l => l.hero.id === 'fangla_h')) bonus += 20;
-      if (legionsHere.some(l => l.hero.id === 'shien') && locId === 'kuaihuolin') bonus *= 2;
       state.grain = (state.grain || 0) + bonus;
     }
   });
@@ -2274,7 +2306,7 @@ function finishEndTurn() {
   FACTIONS.forEach(f => {
     if (f.id === gameState.factionId) return;
     const hasLegions = gameState.factions[f.id].legions.length > 0;
-    const hasLocations = Object.values(gameState.locations).some(l => l.owner === f.id);
+    const hasLocations = Object.keys(gameState.locations).some(id => getEffectiveOwner(id) === f.id);
     if (!hasLegions && !hasLocations) {
       addLog(`💀 ${f.name} 已被消灭！`, 'bad');
     }
@@ -2301,9 +2333,7 @@ function executeAITurnWithAnim(factionId, animations) {
 function updateActionPoints() {
   if (!gameState) return;
   const ownedCount = Object.keys(gameState.locations).filter(id => getEffectiveOwner(id) === gameState.factionId).length;
-  const hasSongJiang = gameState.factions[gameState.factionId].legions.some(l => l.hero.id === 'songjiang');
-  const bonus = hasSongJiang ? 1 : 0;
-  gameState.maxActionPoints = 3 + Math.floor(ownedCount / 2) + bonus;
+  gameState.maxActionPoints = 3 + Math.floor(ownedCount / 2);
 }
 
 function resetActionPoints() {
@@ -2338,12 +2368,12 @@ function loadGame() {
     gameState = saveData;
     gameState.usedHeroIds = new Set(saveData.usedHeroIds || []);
     gameState.scoutedLocations = saveData.scoutedLocations || {};
+    gameState.prison = saveData.prison || [];
     playerFaction = gameState.factionId;
     adjacency = buildAdjacency();
     document.getElementById('faction-select').style.display = 'none';
     selectedLocation = null;
-    doubleAttackUsed = false;
-
+  
     const logEl = document.getElementById('event-log');
     logEl.innerHTML = '';
     gameState.logs.forEach(l => {
@@ -2616,7 +2646,7 @@ function updateUI() {
   document.getElementById('turn-num').textContent = gameState.turn;
   // 粮草各据点独立，不在顶部汇总
   document.getElementById('ap-display').textContent = gameState.actionPoints + '/' + gameState.maxActionPoints;
-  const ownedCount = Object.values(gameState.locations).filter(l => l.owner === gameState.factionId).length;
+  const ownedCount = Object.keys(gameState.locations).filter(id => getEffectiveOwner(id) === gameState.factionId).length;
   document.getElementById('location-count').textContent = ownedCount;
 
   // 我的军团列表
@@ -2628,6 +2658,10 @@ function updateUI() {
         const locName = LOCATIONS.find(l => l.id === lg.locationId).name;
         return `<div style="padding:2px 0;">⭐${lg.hero.name} <span style="color:#888;">${typeNames[lg.hero.type]} 战力${lg.hero.power} | ${lg.troops}人</span> <span style="color:#4a90d9;">[${locName}]</span></div>`;
       }).join('');
+  // 监狱列表
+  const pc = gameState.prison.length;
+  document.getElementById('prison-count').textContent = pc > 0 ? `（${pc}人）` : '';
+  document.getElementById('prison-list').innerHTML = renderPrisonUI();
 }
 
 function updateSidePanel() {
@@ -2856,12 +2890,12 @@ function startBattle(attackerId, defenderId, fromLocId, toLocId, terrain, isPlay
     attLegionsAtLoc = attackerLegionIndices.map(i => attLegionsAtLoc[i]).filter(Boolean);
   }
   const attLegions = attLegionsAtLoc
-    .map(l => ({ hero: { ...l.hero, skill: { ...l.hero.skill } }, troops: l.troops, origTroops: l.troops }));
+    .map(l => ({ hero: { ...l.hero }, troops: l.troops, origTroops: l.troops }));
 
   const defLegions = defenderId
     ? gameState.factions[defenderId].legions
         .filter(l => l.locationId === toLocId)
-        .map(l => ({ hero: { ...l.hero, skill: { ...l.hero.skill } }, troops: l.troops, origTroops: l.troops }))
+        .map(l => ({ hero: { ...l.hero }, troops: l.troops, origTroops: l.troops }))
     : [];
 
   battle = {
@@ -2896,7 +2930,7 @@ function startBattle(attackerId, defenderId, fromLocId, toLocId, terrain, isPlay
   }
 }
 
-// AI vs AI 自动战斗结算
+// AI vs AI 自动战斗结算（含撤退、投降逻辑，与玩家战斗机制一致）
 function autoResolveAIBattle() {
   const attPower = battle.attLegions.reduce((s, l) => s + l.troops * (1 + l.hero.power / 200), 0);
   const defPower = battle.defLegions.reduce((s, l) => s + l.troops * (1 + l.hero.power / 200), 0);
@@ -2905,22 +2939,101 @@ function autoResolveAIBattle() {
   const defEff = defPower * 1.1;
 
   let winner;
-  if (attEff > defEff * 1.3) {
+  if (attEff > defEff * 1.5) {
     winner = 'attacker';
-  } else if (defEff > attEff * 1.3) {
+  } else if (defEff > attEff * 1.5) {
     winner = 'defender';
   } else {
     winner = Math.random() < 0.5 ? 'attacker' : 'defender';
   }
 
-  // 应用损失
-  const attTotal = battle.attLegions.reduce((s, l) => s + l.troops, 0);
-  const defTotal = battle.defLegions.reduce((s, l) => s + l.troops, 0);
-  const attLossPct = winner === 'attacker' ? (0.15 + Math.random() * 0.15) : (0.50 + Math.random() * 0.30);
-  const defLossPct = winner === 'defender' ? (0.15 + Math.random() * 0.15) : (0.50 + Math.random() * 0.30);
+  const loser = winner === 'attacker' ? 'defender' : 'attacker';
+  const loserSide = loser;
+  const loserFromLoc = loser === 'attacker' ? battle.fromLocId : battle.toLocId;
+  const loserFactionId = loser === 'attacker' ? battle.attackerId : battle.defenderId;
+  const loserLegions = loser === 'attacker' ? battle.attLegions : battle.defLegions;
+  const loserRetreated = loser === 'attacker' ? battle.retreated.attacker : battle.retreated.defender;
+  const winnerSide = winner;
+  const winnerFactionId = winner === 'attacker' ? battle.attackerId : battle.defenderId;
+  const winnerRetreated = winner === 'attacker' ? battle.retreated.attacker : battle.retreated.defender;
+  const winnerLegions = winner === 'attacker' ? battle.attLegions : battle.defLegions;
 
-  battle.attLegions.forEach(l => { l.troops = Math.max(0, Math.floor(l.troops * (1 - attLossPct))); });
-  battle.defLegions.forEach(l => { l.troops = Math.max(0, Math.floor(l.troops * (1 - defLossPct))); });
+  if (!battle.surrendered) battle.surrendered = { attacker: [], defender: [] };
+
+  // 战力比（用于投降判断）
+  const powerRatio = attEff / Math.max(defEff, 1);
+  const loserPowerRatio = winner === 'attacker' ? 1 / powerRatio : powerRatio;
+
+  // === 第一轮：劣势方撤退（保主力） ===
+  const retreatOptions = getRetreatDestinations(loserFromLoc, loserFactionId);
+  if (retreatOptions.length > 0) {
+    const bestDest = pickBestRetreatDest(retreatOptions, loserFactionId);
+    loserLegions.forEach((l, i) => {
+      if (l.troops > 0 && !loserRetreated.includes(i)) {
+        const retreatChance = l.hero.power >= 75 ? 0.70 : (l.hero.power >= 60 ? 0.45 : 0.25);
+        if (Math.random() < retreatChance) {
+          const loss = Math.max(1, Math.floor(l.troops * 0.20));
+          l.troops = Math.max(1, l.troops - loss);
+          loserRetreated.push(i);
+          battle.retreatDest[`${loserSide}_${i}`] = bestDest.locationId;
+          if (!gameState.locations[bestDest.locationId].owner) {
+            gameState.locations[bestDest.locationId].owner = loserFactionId;
+          }
+        }
+      }
+    });
+  }
+
+  // === 第二轮：劣势方向优势方投降（基于忠诚度+战力比） ===
+  loserLegions.forEach((l, i) => {
+    if (l.troops > 0 && !loserRetreated.includes(i) && !battle.surrendered[loserSide].includes(i)) {
+      const loyalty = l.hero.loyalty || 50;
+      // 无路可退时更容易降，忠诚低更容易降
+      const trappedBonus = retreatOptions.length === 0 ? 0.4 : 0;
+      const surrenderChance = Math.max(0, Math.min(1, (1 - loyalty / 100) * 1.2 + loserPowerRatio * 0.4 + trappedBonus));
+      if (Math.random() < surrenderChance) {
+        // 投降：损失少量兵力后加入优势方
+        const loss = Math.max(1, Math.floor(l.troops * 0.10));
+        l.troops = Math.max(1, l.troops - loss);
+        battle.surrendered[loserSide].push(i);
+      }
+    }
+  });
+
+  // === 第三轮：胜利方也可能有武将叛变（如果它其实也损失惨重） ===
+  if (Math.random() < 0.05) {
+    winnerLegions.forEach((l, i) => {
+      if (l.troops > 0 && !winnerRetreated.includes(i) && !battle.surrendered[winnerSide].includes(i)) {
+        const loyalty = l.hero.loyalty || 50;
+        if (loyalty < 30 && Math.random() < 0.15 && retreatOptions.length > 0) {
+          const loss = Math.max(1, Math.floor(l.troops * 0.10));
+          l.troops = Math.max(1, l.troops - loss);
+          battle.surrendered[winnerSide].push(i);
+        }
+      }
+    });
+  }
+
+  // === 应用战斗损失 ===
+  const attLossPct = winner === 'attacker' ? (0.08 + Math.random() * 0.08) : (0.35 + Math.random() * 0.20);
+  const defLossPct = winner === 'defender' ? (0.08 + Math.random() * 0.08) : (0.35 + Math.random() * 0.20);
+
+  battle.attLegions.forEach((l, i) => {
+    if (!battle.retreated.attacker.includes(i) && !battle.surrendered.attacker.includes(i)) {
+      l.troops = Math.max(0, Math.floor(l.troops * (1 - attLossPct)));
+    }
+  });
+  battle.defLegions.forEach((l, i) => {
+    if (!battle.retreated.defender.includes(i) && !battle.surrendered.defender.includes(i)) {
+      l.troops = Math.max(0, Math.floor(l.troops * (1 - defLossPct)));
+    }
+  });
+
+  // 检查胜负
+  const attAlive = battle.attLegions.some((l, i) => l.troops > 0 && !battle.retreated.attacker.includes(i) && !battle.surrendered.attacker.includes(i));
+  const defAlive = battle.defLegions.some((l, i) => l.troops > 0 && !battle.retreated.defender.includes(i) && !battle.surrendered.defender.includes(i));
+  if (!attAlive && defAlive) winner = 'defender';
+  if (!defAlive && attAlive) winner = 'attacker';
 
   endBattle(winner);
 }
@@ -3007,22 +3120,30 @@ function endBattle(winner) {
     }
   });
 
-  // ===== 处理叛变投降（武将投靠敌方阵营）=====
+  // ===== 处理叛变投降（AI投降 → 玩家进监狱，AI vs AI直接加入）=====
   if (battle.surrendered) {
     // 进攻方叛变 → 投靠防守方
     battle.surrendered.attacker.forEach(i => {
       const l = battle.attLegions[i];
       if (l && l.troops > 0 && battle.defenderId) {
-        defFactionData.legions.push(createLegion(l.hero, l.troops, battle.toLocId));
-        addLog(`🏳️ ${l.hero.name} 叛变投靠了${battle.defFaction.name}！`, 'system');
+        if (battle.defenderId === gameState.factionId) {
+          addToPrison(l.hero, l.troops, battle.attFaction ? battle.attFaction.name : '敌方');
+        } else {
+          defFactionData.legions.push(createLegion(l.hero, l.troops, battle.toLocId));
+          addLog(`🏳️ ${l.hero.name} 叛变投靠了${battle.defFaction.name}！`, 'system');
+        }
       }
     });
     // 防守方叛变 → 投靠进攻方
     battle.surrendered.defender.forEach(i => {
       const l = battle.defLegions[i];
       if (l && l.troops > 0 && battle.attackerId) {
-        attFactionData.legions.push(createLegion(l.hero, l.troops, battle.fromLocId));
-        addLog(`🏳️ ${l.hero.name} 叛变投靠了${battle.attFaction.name}！`, 'system');
+        if (battle.attackerId === gameState.factionId) {
+          addToPrison(l.hero, l.troops, battle.defFaction ? battle.defFaction.name : '敌方');
+        } else {
+          attFactionData.legions.push(createLegion(l.hero, l.troops, battle.fromLocId));
+          addLog(`🏳️ ${l.hero.name} 叛变投靠了${battle.attFaction.name}！`, 'system');
+        }
       }
     });
   }
@@ -3045,8 +3166,14 @@ function endBattle(winner) {
       if (l.troops <= 0 && !battle.retreated.defender.includes(i)) {
         const alreadyOwned = attFactionData.legions.some(al => al.hero.id === l.hero.id);
         if (!alreadyOwned) {
-          attFactionData.legions.push(createLegion(l.hero, Math.floor(l.origTroops * 0.25), battle.toLocId));
-          if (playerInvolved) addLog(`⛓️ 俘虏了 ${l.hero.name}！加入你的阵营！`, 'good');
+          if (playerIsAttacker) {
+            addToPrison(l.hero, Math.floor(l.origTroops * 0.25), battle.defFaction ? battle.defFaction.name : '敌方');
+          } else if (playerIsDefender) {
+            // 玩家防守时，对方进攻武将投降进监狱
+            addToPrison(l.hero, Math.floor(l.origTroops * 0.25), battle.attFaction ? battle.attFaction.name : '敌方');
+          } else {
+            attFactionData.legions.push(createLegion(l.hero, Math.floor(l.origTroops * 0.25), battle.toLocId));
+          }
         }
       }
     });
@@ -3079,6 +3206,17 @@ function endBattle(winner) {
       addLog(`🛡️ ${battle.defFaction ? battle.defFaction.name : '中立军'} 守住了 ${battle.toLoc.name}！`, 'info');
     } else {
       addLog(`🛡️ ${battle.defFaction ? battle.defFaction.name : '中立军'} 守住 ${battle.toLoc.name}（击退 ${battle.attFaction.name}）`, 'info');
+    }
+    // 防守方胜利时，俘虏进攻方阵亡武将
+    if (playerIsDefender) {
+      battle.attLegions.forEach((l, i) => {
+        if (l.troops <= 0 && !battle.retreated.attacker.includes(i)) {
+          const alreadyOwned = defFactionData.legions.some(dl => dl.hero.id === l.hero.id);
+          if (!alreadyOwned) {
+            addToPrison(l.hero, Math.floor(l.origTroops * 0.25), battle.attFaction ? battle.attFaction.name : '敌方');
+          }
+        }
+      });
     }
     if (playerInvolved) {
       if (playerIsAttacker) {
@@ -3280,7 +3418,7 @@ function renderBattle() {
       btnPanel.innerHTML = `
         <button class="confirm" onclick="continueDuel()">⚔️ 继续战斗</button>
         <button class="danger" onclick="retreatFromDuel()">🏃 撤退（脱离1v1，仍可继续参战）</button>
-        <button style="background:linear-gradient(180deg,#666,#444);border-color:#888;color:#ccc;" onclick="surrenderInDuel()">🏳️ 投降</button>
+        <button style="background:linear-gradient(180deg,#666,#444);border-color:#888;color:#ccc;" onclick="surrenderInDuel()">🏳️ 投降（武将归降敌方）</button>
       `;
     } else {
       btnPanel.innerHTML = '<span style="color:#aaa;">AI 决斗中...</span>';
@@ -3323,7 +3461,7 @@ function renderBattle() {
     <div class="${cls}" id="att-card-${i}">
       <div ${onClick} style="cursor:pointer;">
         <div class="card-name">⭐ ${l.hero.name} <span style="color:#888;font-size:11px;">战力${l.hero.power}</span></div>
-        <div class="card-info" title="${l.hero.skill.desc}">${l.hero.skill.desc}</div>
+        <div class="card-info">${l.hero.type === 'commander' ? '统帅' : (l.hero.type === 'warrior' ? '武将' : '军师')} · 战力 ${l.hero.power}</div>
         <div class="card-troops">${l.troops} 人 <span class="bar" style="width:${pct}%;background:${pct>50?'#4caf50':pct>25?'#ff9800':'#f44336'}"></span></div>
       </div>
       ${l.troops <= 0 ? '<div style="color:#f44336;font-size:11px;">💀 已阵亡</div>' : ''}
@@ -3347,7 +3485,7 @@ function renderBattle() {
     <div class="${cls}" id="def-card-${i}">
       <div ${onClick} style="cursor:pointer;">
         <div class="card-name">⭐ ${l.hero.name} <span style="color:#888;font-size:11px;">战力${l.hero.power}</span></div>
-        <div class="card-info" title="${l.hero.skill.desc}">${l.hero.skill.desc}</div>
+        <div class="card-info">${l.hero.type === 'commander' ? '统帅' : (l.hero.type === 'warrior' ? '武将' : '军师')} · 战力 ${l.hero.power}</div>
         <div class="card-troops">${l.troops} 人 <span class="bar" style="width:${pct}%;background:${pct>50?'#4caf50':pct>25?'#ff9800':'#f44336'}"></span></div>
       </div>
       ${l.troops <= 0 ? '<div style="color:#f44336;font-size:11px;">💀 已阵亡</div>' : ''}
@@ -3621,8 +3759,9 @@ function executeDuelRound() {
     const aiPct = aiTroops / Math.max(aiOrigTroops, 1);
     const playerPct = playerTroops / Math.max(playerOrigTroops, 1);
 
-    // AI撤退条件：兵力不足且差距明显
-    if (aiPct < 0.35 && playerPct - aiPct > 0.20 && Math.random() < 0.65) {
+    // AI撤退条件：动态评估（攻方敢拼，守方保守）
+    const retreatThreshold = aiSide === 'attacker' ? 0.25 : 0.40;
+    if (aiPct < retreatThreshold && playerPct - aiPct > 0.15 && Math.random() < 0.70) {
       const aiFromLoc = aiSide === 'attacker' ? battle.fromLocId : battle.toLocId;
       const aiFactionId = aiSide === 'attacker' ? battle.attackerId : battle.defenderId;
       const aiLegion = aiSide === 'attacker' ? battle.attLegions[aiIdx] : battle.defLegions[aiIdx];
@@ -3643,24 +3782,34 @@ function executeDuelRound() {
         }
         endCurrentDuel(playerSide === 'attacker' ? 'attacker' : 'defender');
         return;
-      } else if (Math.random() < 0.40) {
-        // 无路可退 → 概率叛变投降玩家
-        const lossPct = 0.10 + Math.random() * 0.10;
-        const loss = Math.max(1, Math.floor(aiLegion.troops * lossPct));
-        aiLegion.troops -= loss;
-        if (aiLegion.troops < 0) aiLegion.troops = 0;
+      } else {
+        // 无路可退 → 根据忠诚度决定投降还是死战
+        const loyalty = aiLegion.hero.loyalty || 50;
+        const powerRatio = aiTroops / Math.max(playerTroops, 1);
+        // 忠诚越低越容易降，战力差距越大越容易降
+        const surrenderChance = Math.max(0, Math.min(1, (1 - loyalty / 100) * 1.5 + (1 - powerRatio) * 0.5));
+        if (Math.random() < surrenderChance) {
+          // AI投降 → 进入玩家监狱
+          const lossPct = 0.05 + Math.random() * 0.10;
+          const loss = Math.max(1, Math.floor(aiLegion.troops * lossPct));
+          aiLegion.troops -= loss;
+          if (aiLegion.troops < 0) aiLegion.troops = 0;
 
-        if (!battle.surrendered) battle.surrendered = { attacker: [], defender: [] };
-        battle.surrendered[aiSide].push(aiIdx);
-        const playerFaction = FACTIONS.find(f => f.id === gameState.factionId);
-        battle.log.push({ msg: `🏳️ ${aiLegion.hero.name} 走投无路，叛变投降${playerFaction.name}！损失 ${loss} 人`, type: 'system' });
-        if (aiLegion.troops <= 0) {
+          if (aiLegion.troops > 0) {
+            const playerFaction = FACTIONS.find(f => f.id === gameState.factionId);
+            addToPrison(aiLegion.hero, aiLegion.troops, playerFaction.name);
+            battle.log.push({ msg: `🏳️ ${aiLegion.hero.name} 走投无路，率残部投降！被关入大牢。`, type: 'system' });
+          } else {
+            battle.log.push({ msg: `💀 ${aiLegion.hero.name} 伤势过重身亡！`, type: 'lose' });
+          }
           battle.retreated[aiSide].push(aiIdx);
           battle.retreatDest[`${aiSide}_${aiIdx}`] = null;
-          battle.log.push({ msg: `💀 ${aiLegion.hero.name} 伤势过重身亡，叛变未遂！`, type: 'lose' });
+          endCurrentDuel(playerSide === 'attacker' ? 'attacker' : 'defender');
+          return;
+        } else {
+          // 忠诚度高，死战不退
+          battle.log.push({ msg: `⚔️ ${aiLegion.hero.name} 忠心耿耿，誓死不降！`, type: 'system' });
         }
-        endCurrentDuel(playerSide === 'attacker' ? 'attacker' : 'defender');
-        return;
       }
     }
   }
@@ -4158,7 +4307,8 @@ function aiDoRetreat() {
     return;
   }
 
-  const destLocId = options[0].locationId; // AI选第一个可退据点
+  const bestDest = pickBestRetreatDest(options, factionId);
+  const destLocId = bestDest ? bestDest.locationId : options[0].locationId;
 
   // 撤退所有存活武将
   aliveIdxs.forEach(idx => {
@@ -4309,6 +4459,43 @@ function aiPickActive() {
   if (myAlive.length === 0) {
     endBattle(battle.activeSide === 'attacker' ? 'defender' : 'attacker');
     return;
+  }
+
+  // AI 选将前评估：如果有垂死武将且有退路，优先撤退保将
+  const mySide = battle.activeSide;
+  const fromLocId = mySide === 'attacker' ? battle.fromLocId : battle.toLocId;
+  const factionId = mySide === 'attacker' ? battle.attackerId : battle.defenderId;
+  const enemyLegions = mySide === 'attacker' ? battle.defLegions : battle.attLegions;
+  const enemyRetreated = mySide === 'attacker' ? battle.retreated.defender : battle.retreated.attacker;
+  const enemyAlive = enemyLegions.filter((l, i) => l.troops > 0 && !enemyRetreated.includes(i));
+  const myPower = myAlive.reduce((s, x) => s + x.l.troops * (1 + x.l.hero.power / 200), 0);
+  const enemyPower = enemyAlive.reduce((s, l) => s + l.troops * (1 + l.hero.power / 200), 0);
+
+  // 寻找兵力<30%且战力低的弱将
+  const weaklings = myAlive.filter(x => {
+    const cap = getHeroTroopCap(x.l.hero);
+    return x.l.troops < cap * 0.3 && (myAlive.length > 1);
+  });
+
+  // 如果战力悬殊且有多余武将，让弱将先撤退保命
+  if (weaklings.length > 0 && myPower < enemyPower * 0.7) {
+    const retreatOptions = getRetreatDestinations(fromLocId, factionId);
+    if (retreatOptions.length > 0) {
+      const weak = weaklings[0];
+      const loss = Math.max(1, Math.floor(weak.l.troops * 0.15));
+      weak.l.troops = Math.max(1, weak.l.troops - loss);
+      getActiveRetreated().push(weak.i);
+      const dest = pickBestRetreatDest(retreatOptions, factionId);
+      battle.retreatDest[`${mySide}_${weak.i}`] = dest.locationId;
+      if (!gameState.locations[dest.locationId].owner) {
+        gameState.locations[dest.locationId].owner = factionId;
+      }
+      battle.log.push({ msg: `🏃 ${weak.l.hero.name} 兵力不济，先行撤退至${dest.name}！（损失${loss}人）`, type: 'system' });
+      renderBattle();
+      // 继续选将
+      setTimeout(() => aiPickActive(), 500);
+      return;
+    }
   }
 
   // 取最强的武将出战
